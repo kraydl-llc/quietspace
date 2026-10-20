@@ -1,0 +1,9 @@
+# Large media: keep out of git (GitHub limit is 100 MB per file)
+*.mp4
+*.mov
+*.m4a
+*.wav
+
+# Client notes: keep local (repo is public)
+meeting-transcript-*.txt
+follow-up-email.md

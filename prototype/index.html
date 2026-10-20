@@ -1,0 +1,1308 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><style>:root{color-scheme:light}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>Quiet Space Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Young+Serif&display=swap">
+<style>
+/* Layout: one phone-sized app. Framed as a device beside a notes column on desktop, full-bleed on phones. */
+:root{
+  --a-l:#3D6B58; --a-d:#93C4AC;
+  --stage:#E3E7E1; --stage-ink:#26302B; --stage-ink-2:#5E6A64; --stage-line:#CDD4CC;
+  --font-display:"Young Serif", Georgia, "Times New Roman", serif;
+  --font-body:"Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --stage:#0B0E0D; --stage-ink:#E2E8E4; --stage-ink-2:#8F9C96; --stage-line:#252D29; color-scheme:dark } }
+:root[data-theme="dark"]{ --stage:#0B0E0D; --stage-ink:#E2E8E4; --stage-ink-2:#8F9C96; --stage-line:#252D29; color-scheme:dark }
+
+.app{
+  --bg:#F4F6F2; --surface:#FFFFFF; --surface-2:#ECF0EA; --ink:#1B2420; --ink-2:#56625D; --ink-3:#86918B; --line:#DCE2DB;
+  --on-accent:#FFFFFF; --good:#2F7A57; --warn:#9A5B17; --pin:#FFFFFF; --pin-ink:#1B2420;
+  --map-land:#E6EBE3; --map-road:#FFFFFF; --map-major:#EFD7A4; --map-park:#CDE1C9; --map-water:#C9DCE6; --map-label:#6A7670;
+  --shadow:0 1px 2px rgba(20,30,25,.06), 0 10px 28px rgba(20,30,25,.10);
+  --scrim:rgba(14,20,17,.42);
+  --accent:var(--a-l);
+  --accent-soft:color-mix(in srgb, var(--accent) 12%, var(--surface));
+  --accent-line:color-mix(in srgb, var(--accent) 38%, var(--surface));
+}
+[data-palette="dusk"]{ --a-l:#46598F; --a-d:#AAB7EA }
+[data-palette="plum"]{ --a-l:#7A4870; --a-d:#DDAED3 }
+.notes{ --accent:var(--a-l); --on-accent:#FFFFFF; --line:var(--stage-line); --ink:var(--stage-ink); --ink-2:var(--stage-ink-2); --surface:transparent }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .notes{ --accent:var(--a-d); --on-accent:#0E1311 } }
+:root[data-theme="dark"] .notes{ --accent:var(--a-d); --on-accent:#0E1311 }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .app{
+  --bg:#101412; --surface:#181E1B; --surface-2:#212925; --ink:#E5EBE7; --ink-2:#A0ACA6; --ink-3:#6F7B75; --line:#2B3430;
+  --on-accent:#0E1311; --good:#74CC9E; --warn:#E3A55C; --pin:#222A26; --pin-ink:#E5EBE7;
+  --map-land:#161C19; --map-road:#27302B; --map-major:#4B4330; --map-park:#1C2F23; --map-water:#1A2B33; --map-label:#7D8A84;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.4); --scrim:rgba(0,0,0,.6);
+  --accent:var(--a-d); color-scheme:dark } }
+:root[data-theme="dark"] .app{
+  --bg:#101412; --surface:#181E1B; --surface-2:#212925; --ink:#E5EBE7; --ink-2:#A0ACA6; --ink-3:#6F7B75; --line:#2B3430;
+  --on-accent:#0E1311; --good:#74CC9E; --warn:#E3A55C; --pin:#222A26; --pin-ink:#E5EBE7;
+  --map-land:#161C19; --map-road:#27302B; --map-major:#4B4330; --map-park:#1C2F23; --map-water:#1A2B33; --map-label:#7D8A84;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.4); --scrim:rgba(0,0,0,.6);
+  --accent:var(--a-d); color-scheme:dark }
+
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{background:var(--stage);color:var(--stage-ink);font-family:var(--font-body);-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent, #3D6B58);outline-offset:2px}
+h1,h2,h3,p{margin:0}
+h1,h2{text-wrap:balance}
+
+/* ---------- stage + device ---------- */
+.stage{height:100%;overflow:auto;display:flex;align-items:center;justify-content:center;gap:64px;padding:20px 16px}
+.device{position:relative;flex-shrink:0;width:390px;height:min(844px,100%);min-height:600px;border-radius:48px;border:10px solid #0E100F;box-shadow:0 30px 80px rgba(10,20,15,.28),0 0 0 1px var(--stage-line);overflow:hidden;background:var(--bg);color:var(--ink)}
+.notes{width:340px;flex-shrink:1;min-width:0;display:none}
+@media (min-width:1000px){ .notes{display:block} }
+@media (max-width:520px){
+  body{overflow:hidden}
+  .stage{display:block;padding:0}
+  .device{width:100%;height:100%;min-height:0;border-radius:0;border:0;box-shadow:none}
+}
+.viewport{position:absolute;inset:0;display:flex;flex-direction:column}
+.statusbar{display:none;height:46px;flex-shrink:0;align-items:center;justify-content:space-between;padding:6px 30px 0;font-weight:600;font-size:15px;font-variant-numeric:tabular-nums;background:var(--bg)}
+.statusbar .sb-icons{display:flex;gap:6px;align-items:center}
+.homebar{display:none;position:absolute;left:50%;bottom:7px;width:134px;height:5px;margin-left:-67px;border-radius:3px;background:var(--ink);opacity:.85;z-index:60;pointer-events:none}
+@media (min-width:521px){ .statusbar{display:flex} .homebar{display:block} .tabbar{padding-bottom:20px!important} .pad-home{padding-bottom:22px!important} }
+.main{position:relative;flex:1;min-height:0}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:var(--bg)}
+.screen.with-footer{bottom:0}
+.enter{animation:slideIn .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes slideIn{from{transform:translateX(24px);opacity:.4}to{transform:none;opacity:1}}
+.fade{animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* ---------- notes column (desktop only) ---------- */
+.notes .brandline{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+.notes h2{font-family:var(--font-display);font-weight:400;font-size:34px;line-height:1.1;margin-bottom:12px}
+.notes p{color:var(--stage-ink-2);line-height:1.55;font-size:15px}
+.notes .eyebrow{color:var(--stage-ink-2)}
+.notes ol{margin:18px 0 0;padding-left:20px;color:var(--stage-ink);line-height:1.5;font-size:14.5px;display:grid;gap:8px}
+.notes .np{margin-top:26px;padding-top:20px;border-top:1px solid var(--stage-line)}
+.notes .by{margin-top:26px;font-size:13px;color:var(--stage-ink-2)}
+
+/* ---------- type + shared ---------- */
+.eyebrow{font-size:11.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.display{font-family:var(--font-display);font-weight:400;letter-spacing:-.005em}
+.muted{color:var(--ink-2)}
+.tnum{font-variant-numeric:tabular-nums}
+.wordmark{font-family:var(--font-display);font-size:20px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px;color:var(--ink)}
+.notes .wordmark{color:var(--stage-ink);font-size:22px}
+.ic{width:20px;height:20px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ic.sm{width:16px;height:16px}.ic.lg{width:24px;height:24px}
+.ic.fill{fill:currentColor}
+.pad{padding-left:20px;padding-right:20px}
+.section{padding:22px 20px;border-top:1px solid var(--line)}
+.section h2{font-size:19px;font-weight:700;margin-bottom:12px;letter-spacing:-.01em}
+.row{display:flex;align-items:center;gap:10px}
+.spread{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.stack{display:grid;gap:10px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:50px;padding:0 22px;border-radius:14px;font-weight:600;font-size:16px;background:var(--accent);color:var(--on-accent);transition:transform .12s, filter .15s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.block{width:100%}
+.btn.ghost{background:var(--surface-2);color:var(--ink)}
+.btn.line{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.btn.sm{height:40px;padding:0 16px;font-size:14.5px;border-radius:12px}
+.link{font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.iconbtn{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.chip{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font-size:14px;font-weight:500;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
+.chip.on{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.chip.on .ic{color:var(--accent)}
+.scroll-x{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 20px 4px;margin:0 -20px}
+.scroll-x::-webkit-scrollbar{display:none}
+.badge{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:999px;background:var(--surface);color:var(--ink);font-size:12.5px;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--ink-2)}
+.stars{display:inline-flex;align-items:center;gap:4px;font-weight:600;font-size:14px}
+.stars .ic{width:13px;height:13px}
+.avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;flex-shrink:0;font-size:16px}
+.divider{height:1px;background:var(--line);margin:4px 0}
+.art{display:block;width:100%;height:100%}
+
+/* ---------- tab bar ---------- */
+.tabbar{display:flex;flex-shrink:0;border-top:1px solid var(--line);background:var(--surface);padding:6px 4px 8px;z-index:20}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;font-size:11px;font-weight:600;color:var(--ink-3);position:relative}
+.tab.on{color:var(--accent)}
+.tab .dot{position:absolute;top:2px;left:calc(50% + 8px);width:8px;height:8px;border-radius:50%;background:var(--accent);border:2px solid var(--surface)}
+
+/* ---------- explore ---------- */
+.ex-head{position:sticky;top:0;z-index:5;background:var(--bg);padding:14px 20px 10px}
+.ex-head.shadowed{box-shadow:0 6px 16px -10px rgba(0,0,0,.25)}
+.ex-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.proto-pill{font-size:11px;font-weight:600;letter-spacing:.04em;padding:4px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.search{display:flex;align-items:center;gap:12px;width:100%;padding:10px 10px 10px 18px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);border:1px solid var(--line);text-align:left}
+.search .q{flex:1;min-width:0}
+.search .q b{display:block;font-size:15px}
+.search .q span{display:block;font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.filter-btn{position:relative;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line)}
+.filter-btn .count{position:absolute;top:-3px;right:-3px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-size:11px;font-weight:700;display:grid;place-items:center;border:2px solid var(--surface)}
+.cat-row{margin-top:12px}
+.list-meta{display:flex;align-items:center;justify-content:space-between;padding:6px 20px 12px;font-size:13.5px;color:var(--ink-2)}
+.cards{display:grid;gap:26px;padding:4px 20px 110px}
+.card{text-align:left;display:block;width:100%}
+.card-art{position:relative;aspect-ratio:4/3;max-width:100%;border-radius:18px;overflow:hidden;background:var(--surface-2)}
+.card-art .badge{position:absolute;left:12px;top:12px}
+.card-art .sound{position:absolute;left:12px;bottom:12px;background:rgba(16,22,19,.72);color:#fff;box-shadow:none;backdrop-filter:blur(6px)}
+.heart{position:absolute;right:10px;top:10px;width:38px;height:38px;display:grid;place-items:center;color:#fff}
+.heart .ic{width:24px;height:24px;stroke-width:2;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45));fill:rgba(0,0,0,.25)}
+.heart.on .ic{fill:#E5484D;stroke:#fff}
+.card-body{padding-top:11px;display:grid;gap:3px}
+.card-body h3{font-size:15.5px;font-weight:650;line-height:1.3;min-width:0}
+.card-body .meta{font-size:14px;color:var(--ink-2)}
+.card-body .price{font-size:15px;margin-top:3px}
+.card-body .price b{font-weight:700}
+.empty{padding:40px 28px;text-align:center;display:grid;gap:12px;justify-items:center;color:var(--ink-2)}
+.empty h3{color:var(--ink);font-size:18px}
+.fab{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:15;display:flex;align-items:center;gap:8px;height:46px;padding:0 20px;border-radius:999px;background:var(--ink);color:var(--bg);font-weight:600;font-size:14.5px;box-shadow:0 8px 22px rgba(0,0,0,.25)}
+</style>
+<style>
+/* ---------- map ---------- */
+.map-wrap{position:absolute;inset:0;background:var(--map-land);overflow:hidden}
+.map-wrap svg.map{position:absolute;inset:0;width:100%;height:100%}
+.map-top{position:absolute;left:0;right:0;top:0;padding:14px 16px;z-index:4}
+.m-land{fill:var(--map-land)} .m-park{fill:var(--map-park)} .m-water{fill:var(--map-water)}
+.m-track{stroke:var(--map-road);stroke-width:4}
+.m-grid{stroke:var(--map-road);stroke-width:2;opacity:.75;fill:none}
+.m-case{stroke:var(--map-road);fill:none} .m-major{stroke:var(--map-major);fill:none}
+.m-label{font-family:var(--font-body);font-size:9.5px;font-weight:600;fill:var(--map-label)}
+.m-hood{font-family:var(--font-body);font-size:8.5px;font-weight:700;letter-spacing:1.2px;fill:var(--map-label);opacity:.8}
+.m-you{fill:var(--accent)} .m-area{fill:var(--accent);fill-opacity:.18;stroke:var(--accent);stroke-width:1.5}
+.lg-bg{fill:var(--accent)} .lg-fg{fill:var(--on-accent)} .lg-st{stroke:var(--on-accent)}
+.pin{cursor:pointer}
+.pin rect{fill:var(--pin);stroke:var(--line);stroke-width:1}
+.pin text{fill:var(--pin-ink);font:700 12.5px var(--font-body)}
+.pin.on rect{fill:var(--ink);stroke:var(--ink)}
+.pin.on text{fill:var(--bg)}
+.pin.free rect{stroke:var(--accent);stroke-width:1.5}
+.map-card{position:absolute;left:14px;right:14px;bottom:78px;z-index:4;display:flex;gap:12px;padding:10px;border-radius:20px;background:var(--surface);box-shadow:var(--shadow);text-align:left;animation:fadeIn .2s ease}
+.map-card .thumb{width:104px;height:104px;border-radius:14px;overflow:hidden;flex-shrink:0}
+.map-card .body{min-width:0;display:grid;gap:3px;align-content:center}
+.map-card h3{font-size:15px;font-weight:650}
+.pulse{animation:pulse 2.2s ease-out infinite;transform-origin:center;transform-box:fill-box}
+@keyframes pulse{0%{transform:scale(.6);opacity:.55}100%{transform:scale(2.4);opacity:0}}
+
+/* ---------- sheets ---------- */
+.scrim{position:absolute;inset:0;background:var(--scrim);z-index:40;animation:fadeIn .2s ease}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:92%;display:flex;flex-direction:column;background:var(--surface);border-radius:24px 24px 0 0;z-index:41;animation:sheetUp .32s cubic-bezier(.2,.85,.25,1)}
+.sheet.full{top:0;max-height:none;border-radius:0}
+@keyframes sheetUp{from{transform:translateY(40%);opacity:.3}to{transform:none;opacity:1}}
+.sheet-head{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;padding:14px 14px 12px;border-bottom:1px solid var(--line)}
+.sheet-head h2{text-align:center;font-size:16px;font-weight:700}
+.sheet-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.sheet-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px 14px;border-top:1px solid var(--line);background:var(--surface)}
+.f-sec{padding:20px;border-bottom:1px solid var(--line)}
+.f-sec h3{font-size:17px;font-weight:700;margin-bottom:4px}
+.f-sec .hint{font-size:13.5px;color:var(--ink-2);margin-bottom:14px}
+.wrap{display:flex;flex-wrap:wrap;gap:8px}
+.stepper{display:flex;align-items:center;gap:14px}
+.stepper button{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center}
+.stepper button:disabled{opacity:.35}
+.stepper b{min-width:18px;text-align:center;font-variant-numeric:tabular-nums}
+.sound-opts{display:grid;gap:8px}
+.sound-opt{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:14px;border:1.5px solid var(--line);text-align:left}
+.sound-opt.on{border-color:var(--accent);background:var(--accent-soft)}
+.sound-opt .ic{margin-top:2px}
+.sound-opt b{display:block;font-size:15px}
+.sound-opt span{display:block;font-size:13px;color:var(--ink-2);margin-top:2px;line-height:1.4}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.type-tile{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:14px;border:1.5px solid var(--line);text-align:left;font-size:14px;font-weight:600}
+.type-tile .sw{height:46px;border-radius:9px;overflow:hidden}
+.type-tile.on{border-color:var(--accent);background:var(--accent-soft)}
+.hist{display:flex;align-items:flex-end;gap:3px;height:52px;padding:0 4px}
+.hist i{flex:1;border-radius:3px 3px 0 0;background:var(--accent);opacity:.9}
+.hist i.off{background:var(--line);opacity:1}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:var(--line)}
+input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;margin-top:-11px;border-radius:50%;background:var(--surface);border:1.5px solid var(--ink-3);box-shadow:0 2px 6px rgba(0,0,0,.2)}
+input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--surface);border:1.5px solid var(--ink-3)}
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 0}
+.switch-row b{display:block;font-size:15px;font-weight:600}
+.switch-row span{display:block;font-size:13px;color:var(--ink-2);margin-top:2px}
+.switch{position:relative;width:50px;height:30px;border-radius:999px;background:var(--line);flex-shrink:0;transition:background .2s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.switch.on{background:var(--accent)}
+.switch.on::after{transform:translateX(20px)}
+.checks{display:grid;gap:2px}
+.check{display:flex;align-items:center;justify-content:space-between;padding:10px 0;font-size:15px;text-align:left;width:100%}
+.check .box{width:24px;height:24px;border-radius:7px;border:1.5px solid var(--ink-3);display:grid;place-items:center;color:var(--on-accent)}
+.check.on .box{background:var(--accent);border-color:var(--accent)}
+
+/* ---------- listing detail ---------- */
+.hero{position:relative;height:300px;background:var(--surface-2)}
+.hero-btns{position:absolute;left:16px;right:16px;top:14px;display:flex;justify-content:space-between;z-index:2}
+.hero-btns .row{gap:10px}
+.hero .count{position:absolute;right:16px;bottom:30px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:8px;background:rgba(16,22,19,.65);color:#fff}
+.detail{position:relative;margin-top:-18px;border-radius:22px 22px 0 0;background:var(--bg);padding-bottom:110px}
+.detail-head{padding:24px 20px 20px}
+.detail-head h1{font-family:var(--font-display);font-weight:400;font-size:27px;line-height:1.15}
+.detail-head .sub{margin-top:8px;color:var(--ink-2);font-size:14.5px}
+.fav-row{display:flex;align-items:center;gap:14px;margin-top:16px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.fav-row .lbl{font-size:13px;font-weight:700;line-height:1.2;flex:1}
+.fav-row .num{text-align:center;padding-left:14px;border-left:1px solid var(--line)}
+.fav-row .num b{display:block;font-size:17px}
+.fav-row .num span{font-size:11px;color:var(--ink-2)}
+.host-row{display:flex;gap:14px;align-items:center}
+.host-row b{display:block;font-size:15.5px}
+.host-row span{display:block;font-size:13.5px;color:var(--ink-2);margin-top:2px}
+.qmeter{position:relative;margin-top:6px}
+.qmeter .bar{height:10px;border-radius:999px;background:linear-gradient(90deg,var(--accent) 0%,color-mix(in srgb,var(--accent) 45%,var(--surface-2)) 45%,var(--surface-2) 100%)}
+.qmeter .mark{position:absolute;top:-6px;width:4px;height:22px;border-radius:2px;background:var(--ink);transform:translateX(-2px)}
+.qmeter .scale{display:flex;justify-content:space-between;margin-top:10px;font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.qbig{display:flex;align-items:baseline;gap:8px;margin-bottom:14px}
+.qbig b{font-family:var(--font-display);font-weight:400;font-size:40px;line-height:1}
+.policy{display:flex;gap:14px;padding:16px;border-radius:16px;background:var(--accent-soft);margin-top:4px}
+.policy .ic{color:var(--accent);margin-top:2px}
+.policy b{display:block;font-size:15.5px}
+.policy p{font-size:14px;color:var(--ink-2);margin-top:4px;line-height:1.45}
+.goodfor{display:flex;flex-wrap:wrap;gap:8px}
+.goodfor span{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line);font-size:14px;font-weight:500}
+.goodfor .ic{color:var(--accent)}
+.prose{font-size:15px;line-height:1.6;color:var(--ink)}
+.amen{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px}
+.amen div{display:flex;gap:10px;align-items:center;font-size:14.5px;min-width:0}
+.rules{display:grid;gap:12px;font-size:15px}
+.rules div{display:flex;gap:12px;align-items:flex-start;line-height:1.4}
+.minimap{height:170px;border-radius:16px;overflow:hidden;position:relative;border:1px solid var(--line)}
+.rv-sum{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.rv-sum b{font-family:var(--font-display);font-weight:400;font-size:30px}
+.rv-cats{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;margin-bottom:18px}
+.rv-cat{font-size:13.5px}
+.rv-cat .t{display:flex;justify-content:space-between;margin-bottom:5px}
+.rv-cat .b{height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.rv-cat .b i{display:block;height:100%;background:var(--ink)}
+.rv-cards{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:2px 20px}
+.rv-cards::-webkit-scrollbar{display:none}
+.rv-card{flex:0 0 78%;padding:16px;border-radius:16px;border:1px solid var(--line);background:var(--surface);display:grid;gap:10px;align-content:start}
+.rv-card p{font-size:14.5px;line-height:1.5}
+.rv-who{display:flex;gap:10px;align-items:center}
+.rv-who .avatar{width:36px;height:36px;font-size:14px}
+.rv-who b{display:block;font-size:14px}
+.rv-who span{display:block;font-size:12.5px;color:var(--ink-2)}
+.twoway{display:flex;gap:12px;padding:14px;border-radius:14px;border:1px dashed var(--accent-line);margin-top:16px;font-size:13.5px;line-height:1.45;color:var(--ink-2)}
+.twoway .ic{color:var(--accent);flex-shrink:0}
+.footer-bar{position:absolute;left:0;right:0;bottom:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px 14px;border-top:1px solid var(--line);background:var(--surface)}
+.footer-bar .p b{font-size:17px}
+.footer-bar .p span{display:block;font-size:13px;color:var(--ink-2);margin-top:1px}
+
+/* ---------- booking ---------- */
+.days{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:2px 20px}
+.days::-webkit-scrollbar{display:none}
+.day{flex:0 0 58px;display:grid;justify-items:center;gap:2px;padding:10px 0;border-radius:14px;border:1.5px solid var(--line);font-variant-numeric:tabular-nums}
+.day span{font-size:11.5px;font-weight:600;color:var(--ink-2);text-transform:uppercase;letter-spacing:.05em}
+.day b{font-size:19px}
+.day.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.day.on span{color:var(--bg);opacity:.75}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.slot{height:44px;border-radius:12px;border:1.5px solid var(--line);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.slot.on{border-color:var(--accent);background:var(--accent);color:var(--on-accent)}
+.slot:disabled{color:var(--ink-3);text-decoration:line-through;border-style:dashed;cursor:default}
+.lines{display:grid;gap:10px;font-size:15px;font-variant-numeric:tabular-nums}
+.lines .spread span:first-child{color:var(--ink-2)}
+.lines .total{padding-top:12px;border-top:1px solid var(--line);font-weight:700}
+.lines .total span:first-child{color:var(--ink)}
+.summary{display:flex;gap:14px;align-items:center}
+.summary .thumb{width:96px;height:80px;border-radius:12px;overflow:hidden;flex-shrink:0}
+.summary h3{font-size:15px;font-weight:650;line-height:1.3}
+.kv{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;font-size:15px}
+.kv b{display:block;font-weight:600}
+.kv span{display:block;color:var(--ink-2);margin-top:2px}
+.pay{display:flex;align-items:center;gap:14px;padding:14px;border-radius:14px;border:1.5px solid var(--line);width:100%;text-align:left}
+.pay.on{border-color:var(--ink)}
+.pay .logo{width:46px;height:32px;border-radius:7px;display:grid;place-items:center;font-size:11px;font-weight:700;background:var(--surface-2);color:var(--ink)}
+.pay .radio{margin-left:auto;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--ink-3)}
+.pay.on .radio{border:7px solid var(--ink)}
+textarea.input{width:100%;min-height:84px;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);resize:none;font-size:15px;line-height:1.45}
+textarea.input:focus{outline:none;border-color:var(--accent)}
+.private{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--ink-2);margin-top:10px}
+.spinner{width:20px;height:20px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- confirmation ---------- */
+.done{padding:40px 24px 30px;display:grid;justify-items:center;text-align:center;gap:12px}
+.done .ring{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);animation:pop .5s cubic-bezier(.2,1.4,.4,1)}
+.done .ring .ic{width:40px;height:40px;stroke-width:2.4}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+.done h1{font-family:var(--font-display);font-weight:400;font-size:30px}
+.code{display:flex;gap:14px;align-items:center;padding:16px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.code .digits{display:flex;gap:6px;margin-left:auto}
+.code .digits i{width:28px;height:36px;border-radius:8px;background:var(--surface-2);display:grid;place-items:center;font-style:normal;font-weight:700;color:var(--ink-3)}
+
+/* ---------- bookings / inbox / profile ---------- */
+.page-h{padding:18px 20px 8px}
+.page-h h1{font-family:var(--font-display);font-weight:400;font-size:30px}
+.seg{display:flex;gap:4px;padding:4px;border-radius:12px;background:var(--surface-2);margin:10px 20px 16px}
+.seg button{flex:1;height:36px;border-radius:9px;font-weight:600;font-size:14px;color:var(--ink-2)}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.trip{display:block;width:100%;text-align:left;border-radius:18px;overflow:hidden;background:var(--surface);border:1px solid var(--line)}
+.trip .ta{height:120px}
+.trip .tb{padding:14px 16px;display:grid;gap:4px}
+.trip .tb h3{font-size:16px;font-weight:650}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--good)}
+.status::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.thread{display:flex;gap:14px;align-items:center;width:100%;text-align:left;padding:14px 20px}
+.thread .tx{min-width:0;flex:1}
+.thread .tx b{display:block;font-size:15px}
+.thread .tx span{display:block;font-size:14px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.thread .tx span.unread{color:var(--ink);font-weight:600}
+.thread time{font-size:12.5px;color:var(--ink-3);align-self:flex-start;margin-top:3px}
+.chat-head{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--surface)}
+.chat-head .avatar{width:36px;height:36px;font-size:14px}
+.chat-head b{display:block;font-size:15px}
+.chat-head span{display:block;font-size:12.5px;color:var(--ink-2)}
+.msgs{display:flex;flex-direction:column;gap:8px;padding:16px}
+.msg{max-width:80%;padding:10px 14px;border-radius:18px;font-size:15px;line-height:1.42}
+.msg.them{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:6px}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-bottom-right-radius:6px}
+.msg-day{align-self:center;font-size:12px;color:var(--ink-3);margin:6px 0}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:14px 16px;border-radius:18px;background:var(--surface);border:1px solid var(--line)}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--ink-3);animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+.composer{display:flex;gap:10px;align-items:center;padding:10px 12px 12px;border-top:1px solid var(--line);background:var(--surface)}
+.composer input{flex:1;min-width:0;height:44px;padding:0 16px;border-radius:999px;border:1.5px solid var(--line);background:var(--bg);font-size:15px}
+.composer input:focus{outline:none;border-color:var(--accent)}
+.composer button{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent)}
+.composer button:disabled{opacity:.4}
+.prof{display:flex;gap:16px;align-items:center;padding:8px 20px 20px}
+.prof .avatar{width:68px;height:68px;font-size:26px}
+.prof h2{font-family:var(--font-display);font-weight:400;font-size:26px}
+.panel{margin:0 20px 16px;padding:18px;border-radius:18px;background:var(--surface);border:1px solid var(--line)}
+.panel h3{font-size:16px;font-weight:700}
+.menu{margin:0 20px 16px;border-radius:18px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.menu button{display:flex;align-items:center;gap:14px;width:100%;padding:15px 16px;font-size:15px;text-align:left;border-top:1px solid var(--line)}
+.menu button:first-child{border-top:0}
+.menu button .ic:last-child{margin-left:auto;color:var(--ink-3)}
+.palettes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.pal{padding:10px;border-radius:14px;border:1.5px solid var(--line);display:grid;gap:8px;text-align:left;font-size:13px;font-weight:600}
+.pal.on{border-color:var(--ink)}
+.pal .sw{display:flex;height:28px;border-radius:8px;overflow:hidden}
+.pal .sw i{flex:1}
+.host-cta{position:relative;margin:0 20px 16px;padding:20px;border-radius:20px;overflow:hidden;background:var(--ink);color:var(--bg);text-align:left;display:block;width:calc(100% - 40px)}
+.host-cta h3{font-family:var(--font-display);font-weight:400;font-size:22px;line-height:1.2;max-width:70%}
+.host-cta p{margin-top:6px;font-size:14px;opacity:.75;max-width:75%}
+.host-cta .waves{position:absolute;right:-30px;top:50%;transform:translateY(-50%);opacity:.5}
+.big-num{font-family:var(--font-display);font-weight:400;font-size:44px;line-height:1;font-variant-numeric:tabular-nums}
+.steps{display:grid;gap:16px}
+.step{display:flex;gap:14px}
+.step .n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px}
+.step b{display:block;font-size:15.5px}
+.step p{font-size:14px;color:var(--ink-2);margin-top:3px;line-height:1.45}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi{padding:12px;border-radius:14px;background:var(--surface-2)}
+.kpi b{display:block;font-size:19px;font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--ink-2)}
+.star-pick{display:flex;gap:10px;justify-content:center;margin:8px 0 4px}
+.star-pick button{color:var(--line)}
+.star-pick button.on{color:var(--ink)}
+.star-pick .ic{width:38px;height:38px}
+
+/* ---------- toast + welcome ---------- */
+.toast{position:absolute;left:16px;right:16px;bottom:84px;z-index:70;display:flex;gap:10px;align-items:center;padding:13px 16px;border-radius:14px;background:var(--ink);color:var(--bg);font-size:14.5px;font-weight:500;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:sheetUp .25s ease}
+.welcome .sheet-body{padding:8px 22px 6px}
+.welcome h2{font-family:var(--font-display);font-weight:400;font-size:28px;line-height:1.15;margin:6px 0 10px}
+.welcome p{font-size:15px;line-height:1.55;color:var(--ink-2)}
+.try{display:grid;gap:10px;margin:16px 0 4px;padding:0;list-style:none;counter-reset:t}
+.try li{display:flex;gap:12px;font-size:14.5px;line-height:1.45}
+.try li .ic{color:var(--accent);margin-top:1px}
+
+@media (prefers-reduced-motion: reduce){ *,*::before,*::after{animation:none!important;transition:none!important} }
+</style>
+
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+const { useState, useEffect, useMemo, useRef, useId, Fragment } = React;
+const html = htm.bind(React.createElement);
+
+/* ---------------- taxonomy (from the Oct 16 call) ---------------- */
+const USES = [
+  { id: 'rest', label: 'Rest & nap', icon: 'moon' },
+  { id: 'meditate', label: 'Meditation', icon: 'leaf' },
+  { id: 'release', label: 'Emotional release', icon: 'wave' },
+  { id: 'prayer', label: 'Prayer', icon: 'sun' },
+  { id: 'journal', label: 'Read & journal', icon: 'pen' },
+  { id: 'breath', label: 'Breathwork', icon: 'wind' },
+  { id: 'circle', label: 'Small circle', icon: 'users' },
+];
+const USE = Object.fromEntries(USES.map(u => [u.id, u]));
+const SOUND = {
+  silent: { label: 'Silent only', short: 'Silent', icon: 'volx', note: 'Whispers at most. Phones on silent. Ideal for sleep, prayer and deep focus.' },
+  soft: { label: 'Soft sounds OK', short: 'Soft sound', icon: 'vol1', note: 'Quiet talking, soft music and gentle tears are all fine here.' },
+  loud: { label: 'Loud is welcome', short: 'Loud OK', icon: 'vol', note: 'Cry, sing, shout, let it out. The room is insulated so nobody outside will hear you.' },
+};
+const TYPES = [
+  { id: 'guesthouse', label: 'Guest house' },
+  { id: 'yoga', label: 'Yoga studio' },
+  { id: 'room', label: 'Spare room' },
+  { id: 'garden', label: 'Garden studio' },
+  { id: 'sanctuary', label: 'Chapel & sanctuary' },
+  { id: 'studio', label: 'Music & art studio' },
+  { id: 'cabin', label: 'Cabin & porch' },
+  { id: 'office', label: 'Office rest room' },
+];
+const TYPE = Object.fromEntries(TYPES.map(t => [t.id, t]));
+const AMEN = {
+  blankets: ['Blankets & pillows', 'moon'], mat: ['Floor mats & cushions', 'grid'], dim: ['Dimmable lights', 'sun'],
+  restroom: ['Private restroom', 'home'], parking: ['Free parking', 'pin'], stepfree: ['Step-free entry', 'check'],
+  entrance: ['Private entrance', 'key'], scentfree: ['Scent-free', 'leaf'], tea: ['Tea & water', 'cup'],
+  noise: ['White-noise machine', 'vol1'], tissues: ['Tissues within reach', 'heart'], daybed: ['Daybed', 'moon'],
+};
+const AMEN_FILTER = ['blankets', 'restroom', 'parking', 'stepfree', 'entrance', 'scentfree'];
+
+/* ---------------- sample listings: Lexington, KY ---------------- */
+const L = (o) => o;
+const LISTINGS = [
+  L({ id: 1, title: 'Sunroom above the garden', type: 'guesthouse', hood: 'Chevy Chase', mi: 1.2, price: 24, rating: 4.97, reviews: 38, cap: 2, sound: 'soft', db: 27, instant: true, now: true,
+    uses: ['rest', 'meditate', 'journal', 'prayer'], amen: ['blankets', 'dim', 'restroom', 'entrance', 'tea', 'parking'],
+    host: { name: 'Marguerite', since: 2025, color: '#7C8F6A', reply: 'within 10 min' }, x: 245, y: 345,
+    blurb: 'A glass-walled sunroom on the second floor of our guest house, looking down onto a cottage garden. Morning light is soft and the street is a dead end, so the loudest thing you will hear is the wind chime.',
+    rules: ['Shoes off at the door', 'No phone calls inside', 'Please leave the blankets folded on the chair'],
+    art: { wall: '#DCE4D8', wall2: '#C3D0C0', floor: '#B49A7A', sky: '#FFF6DE', sky2: '#F6E2B5', glow: '#FFE7A8', frame: '#FFFFFF', win: 'left', props: ['chair', 'plant'], prop: '#8FA48A', prop2: '#E9D8B8', leaf: '#4E7A55', pot: '#C8A27C' } }),
+  L({ id: 2, title: 'Studio B after hours', type: 'yoga', hood: 'North Limestone', mi: 0.8, price: 20, rating: 4.92, reviews: 51, cap: 3, sound: 'loud', db: 31, instant: true, now: false,
+    uses: ['breath', 'release', 'circle', 'meditate'], amen: ['mat', 'dim', 'restroom', 'tissues', 'noise', 'stepfree'],
+    host: { name: 'Jonah', since: 2024, color: '#5B7F8C', reply: 'within an hour' }, x: 212, y: 252,
+    blurb: 'Our smaller practice room, open to one booking at a time once evening classes end. Sprung wood floor, bolsters and blocks, and acoustic panels on every wall, so breathwork and big feelings stay in the room.',
+    rules: ['Wipe down any mats you use', 'Lights off and door locked when you leave', 'No candles (smoke detectors)'],
+    art: { wall: '#E8E1D7', wall2: '#D6CBBD', floor: '#A97F55', sky: '#E3EEF5', sky2: '#C9DDEA', glow: '#FFF1CF', frame: '#2E2A26', win: 'right', props: ['mat', 'plant'], prop: '#5B7F8C', prop2: '#D9B48A', leaf: '#3E6B4F', pot: '#E7DFD3' } }),
+  L({ id: 3, title: 'The quiet room on Bell Court', type: 'room', hood: 'Bell Court', mi: 1.5, price: 18, rating: 4.89, reviews: 22, cap: 1, sound: 'silent', db: 24, instant: false, now: true,
+    uses: ['rest', 'journal'], amen: ['blankets', 'daybed', 'dim', 'scentfree', 'entrance'],
+    host: { name: 'Theo', since: 2025, color: '#7C8DA6', reply: 'within 30 min' }, x: 246, y: 300,
+    blurb: 'A back bedroom in a 1920s foursquare, set up for one person to lie down and switch off. Blackout shades, a weighted blanket, and a separate side entrance so you never pass through the house.',
+    rules: ['Silent space: no music or calls', 'Scent-free, please skip perfume', 'Side gate code arrives 15 min before'],
+    art: { wall: '#D3DCE6', wall2: '#B9C6D4', floor: '#8C7A68', sky: '#F1F4F8', sky2: '#DCE5EE', glow: '#FFF4DA', frame: '#F7F7F5', win: 'left', props: ['bed', 'lamp'], prop: '#E8E2D6', prop2: '#7C8DA6' } }),
+  L({ id: 4, title: 'Chapel loft, weekday mornings', type: 'sanctuary', hood: 'Downtown', mi: 0.4, price: 0, rating: 4.95, reviews: 64, cap: 4, sound: 'silent', db: 22, instant: true, now: true,
+    uses: ['prayer', 'meditate', 'journal'], amen: ['stepfree', 'restroom', 'blankets'],
+    host: { name: 'Rev. Alma', since: 2026, color: '#8E7656', reply: 'within a day' }, x: 196, y: 292,
+    blurb: 'The choir loft of a downtown chapel, open free of charge Monday to Friday, 8 to 11 AM. Stone walls, old wood, and the kind of quiet that only a 120-year-old building has. Donations are welcome and never expected.',
+    rules: ['Open to people of any faith or none', 'Please keep to the loft during services', 'Donations optional'],
+    art: { wall: '#EEEAE3', wall2: '#DCD5C9', floor: '#7A6450', sky: '#CFE0F0', sky2: '#F4E7C8', glow: '#FFF0C2', frame: '#B8A88E', arch: true, props: ['pews'], prop: '#6E5641' } }),
+  L({ id: 5, title: 'Cedar garden studio', type: 'garden', hood: 'Ashland Park', mi: 2.1, price: 28, rating: 4.98, reviews: 17, cap: 2, sound: 'loud', db: 26, instant: false, now: false,
+    uses: ['release', 'breath', 'rest', 'meditate'], amen: ['mat', 'blankets', 'tissues', 'tea', 'parking', 'entrance'],
+    host: { name: 'Priya', since: 2025, color: '#3E5F55', reply: 'within 15 min' }, x: 282, y: 375,
+    blurb: 'A detached cedar studio at the bottom of the garden, a good 60 feet from the house. It was built for music practice, so it is fully insulated. Cry, yell, or sit in silence. Nobody will hear either.',
+    rules: ['Garden path is lit after dark', 'Kettle and tea are yours to use', 'Please close the windows when you leave'],
+    art: { wall: '#C9B79E', wall2: '#AE9A7E', floor: '#6F5A45', sky: '#DDEFD9', sky2: '#B8D8B0', glow: '#F7F1C6', frame: '#5A4634', win: 'right', trees: true, props: ['mat', 'lamp'], prop: '#3E5F55', prop2: '#E6D3B3' } }),
+  L({ id: 6, title: 'Nap suite by the Distillery District', type: 'room', hood: 'Distillery District', mi: 1.9, price: 15, rating: 4.86, reviews: 29, cap: 1, sound: 'soft', db: 29, instant: true, now: true,
+    uses: ['rest'], amen: ['daybed', 'blankets', 'noise', 'dim', 'restroom'],
+    host: { name: 'Andre', since: 2026, color: '#6B8BA8', reply: 'within 5 min' }, x: 138, y: 300,
+    blurb: 'A small, dark, cool room made for one thing: a proper nap. Daybed, blackout curtains, a white-noise machine, and a gentle wake-up light you can set to any time.',
+    rules: ['Bookings in 1-hour blocks', 'Fresh linens every visit', 'Wake-up light is on the side table'],
+    art: { wall: '#2F3B44', wall2: '#232D35', floor: '#4A3F37', sky: '#3C5A78', sky2: '#7C93A8', glow: '#F7C77D', frame: '#1A2228', win: 'left', props: ['bed', 'lamp'], prop: '#C9B79C', prop2: '#6B8BA8' } }),
+  L({ id: 7, title: 'Reading nook in a 1910 bungalow', type: 'room', hood: 'Kenwick', mi: 1.7, price: 12, rating: 4.91, reviews: 33, cap: 1, sound: 'silent', db: 25, instant: true, now: true,
+    uses: ['journal', 'rest', 'prayer'], amen: ['blankets', 'tea', 'scentfree', 'parking'],
+    host: { name: 'Ruth', since: 2025, color: '#7A4E3F', reply: 'within an hour' }, x: 285, y: 322,
+    blurb: 'A wingback chair, a wall of books and a window onto a quiet Kenwick street. Bring a journal or borrow anything off the shelves.',
+    rules: ['Borrow any book, just leave it on the chair', 'Silent space', 'Street parking out front'],
+    art: { wall: '#E4D3C2', wall2: '#CDB8A2', floor: '#8F6E52', sky: '#EAF2F3', sky2: '#D2E3E6', glow: '#FFF0CC', frame: '#FFFFFF', win: 'right', props: ['shelf', 'chair'], prop: '#7A4E3F', prop2: '#E9DCC6' } }),
+  L({ id: 8, title: 'Sound-treated music room', type: 'studio', hood: 'Southland', mi: 3.4, price: 30, rating: 4.94, reviews: 12, cap: 3, sound: 'loud', db: 20, instant: false, now: false,
+    uses: ['release', 'breath', 'circle'], amen: ['mat', 'tissues', 'dim', 'restroom', 'parking', 'stepfree'],
+    host: { name: 'Celeste', since: 2026, color: '#8C6A9E', reply: 'within 20 min' }, x: 205, y: 440,
+    blurb: 'A recording room with floating floors and double doors. It is the quietest room in Lexington when you are silent and the most private when you are not.',
+    rules: ['No food in the room', 'Max 3 people', 'Free lot behind the building'],
+    art: { wall: '#3A3542', wall2: '#2C2833', floor: '#5B4A3E', sky: '#5E6E8C', sky2: '#9AA6C2', glow: '#E9B872', frame: '#201D25', win: 'right', props: ['panels', 'mat'], prop: '#8C6A9E', prop2: '#C9A46B' } }),
+  L({ id: 9, title: 'Horse-country cabin porch', type: 'cabin', hood: 'Paris Pike', mi: 9.8, price: 35, rating: 5.0, reviews: 9, cap: 4, sound: 'loud', db: 19, instant: false, now: false,
+    uses: ['rest', 'meditate', 'circle', 'release'], amen: ['blankets', 'tea', 'restroom', 'parking', 'entrance'],
+    host: { name: 'Will', since: 2026, color: '#9A4E3A', reply: 'within 2 hours' }, x: 318, y: 150,
+    blurb: 'A screened porch on a one-room cabin, looking out over a horse pasture off Paris Pike. Rocking chairs, a porch swing and the nearest neighbor half a mile away.',
+    rules: ['Gravel drive: go slow', 'Please do not feed the horses', 'Porch blankets in the cedar chest'],
+    art: { wall: '#9C7652', wall2: '#7E5D40', floor: '#5E4630', sky: '#CFE6F2', sky2: '#EAF3E2', glow: '#FFF2C4', frame: '#4A3523', win: 'left', hills: true, props: ['chair'], prop: '#D5C3A1', prop2: '#9A4E3A' } }),
+  L({ id: 10, title: 'Lunch-hour rest room in Hamburg', type: 'office', hood: 'Hamburg', mi: 5.2, price: 10, rating: 4.83, reviews: 41, cap: 1, sound: 'silent', db: 28, instant: true, now: true,
+    uses: ['rest', 'meditate'], amen: ['daybed', 'noise', 'restroom', 'parking', 'stepfree'],
+    host: { name: 'Dana', since: 2025, color: '#55707E', reply: 'within 10 min' }, x: 345, y: 268,
+    blurb: 'A former phone room in a quiet office suite, turned into a 30 to 60 minute reset spot for people working nearby. Easy parking, in and out in your lunch break.',
+    rules: ['Weekdays 11 AM to 3 PM', 'Check in at the front desk tablet', 'One person at a time'],
+    art: { wall: '#E7EAEC', wall2: '#D2D7DB', floor: '#9BA1A6', sky: '#DCE8F2', sky2: '#BCD0E2', glow: '#F3F7FF', frame: '#6E7780', win: 'right', props: ['bed', 'plant'], prop: '#55707E', prop2: '#E3E6E8', leaf: '#4C7A5A', pot: '#FFFFFF' } }),
+  L({ id: 11, title: 'Treehouse in Hollywood', type: 'cabin', hood: 'Hollywood', mi: 1.6, price: 26, rating: 4.96, reviews: 25, cap: 2, sound: 'soft', db: 30, instant: true, now: false,
+    uses: ['rest', 'journal', 'meditate'], amen: ['blankets', 'daybed', 'tea', 'entrance'],
+    host: { name: 'Sam', since: 2025, color: '#6F8B5E', reply: 'within 30 min' }, x: 222, y: 385,
+    blurb: 'Up a ladder and into the oaks. A little cabin in the canopy with a daybed under the window, made for napping, reading and listening to the leaves.',
+    rules: ['Not suitable if ladders are hard for you', 'No shoes upstairs', 'Lantern by the door'],
+    art: { wall: '#B98E63', wall2: '#9A7350', floor: '#6B4E35', sky: '#A9CF9A', sky2: '#7FB27A', glow: '#F1F7C9', frame: '#5B3F28', win: 'left', trees: true, props: ['bed'], prop: '#E7DAC0', prop2: '#6F8B5E' } }),
+  L({ id: 12, title: 'Community care room', type: 'sanctuary', hood: 'Jefferson Street', mi: 1.1, price: 0, rating: 4.9, reviews: 46, cap: 3, sound: 'soft', db: 32, instant: true, now: true,
+    uses: ['circle', 'journal', 'meditate', 'release'], amen: ['mat', 'tissues', 'tea', 'stepfree', 'restroom'],
+    host: { name: 'Keisha', since: 2026, color: '#C27C5B', reply: 'within an hour' }, x: 160, y: 258,
+    blurb: 'A free room at a neighborhood community center, kept open for anyone who needs a calm place for an hour. Floor cushions, tea and a box of tissues on every side table.',
+    rules: ['Free, first come or booked', 'Max 2 hours per visit', 'Please wash your mug'],
+    art: { wall: '#D9E1DC', wall2: '#C2CEC6', floor: '#A38B6F', sky: '#F2F0E6', sky2: '#E0DCC8', glow: '#FFF2D0', frame: '#FFFFFF', win: 'right', props: ['circle'], prop: '#C27C5B', prop2: '#6F8F80' } }),
+];
+const BY_ID = Object.fromEntries(LISTINGS.map(l => [l.id, l]));
+
+const REVIEW_POOL = [
+  { who: 'Ava', when: 'October 2026', color: '#8E7AA8', text: 'I booked an hour to cry after a hard week and it was exactly what I needed. Nobody around, a box of tissues, and a pot of tea waiting.' },
+  { who: 'Marcus', when: 'October 2026', color: '#5E8C7C', text: 'Fell asleep within ten minutes. Genuinely quieter than my own house. The listed decibel number was spot on.' },
+  { who: 'Priscilla', when: 'September 2026', color: '#B07A5A', text: 'Used it for my morning prayer before work. Easy check-in with the door code and the host left a lovely note.' },
+  { who: 'Tom', when: 'September 2026', color: '#6A7FA8', text: 'Booked during a lunch break to do breathwork. Clean, calm and five minutes from my office.' },
+  { who: 'Leah', when: 'August 2026', color: '#A86A7E', text: 'As a nursing student with roommates, this is the only place I get real quiet to study and decompress.' },
+];
+const reviewsFor = (l) => [0, 1, 2].map(i => REVIEW_POOL[(l.id + i) % REVIEW_POOL.length]);
+
+/* ---------------- icons ---------------- */
+const P = {
+  search: 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.35-4.35',
+  sliders: 'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6',
+  heart: 'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z',
+  star: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z',
+  back: 'M15 18l-6-6 6-6', next: 'M9 18l6-6-6-6', x: 'M18 6L6 18M6 6l12 12', check: 'M20 6L9 17l-5-5',
+  map: 'M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4zM8 2v16M16 6v16', list: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
+  chat: 'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z',
+  cal: 'M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM16 2v4M8 2v4M3 10h18',
+  user: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
+  users: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+  clock: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2',
+  pin: 'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0zM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
+  lock: 'M5 11h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2zM7 11V7a5 5 0 0 1 10 0v4',
+  vol: 'M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14',
+  vol1: 'M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07', volx: 'M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6',
+  moon: 'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z',
+  sun: 'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42',
+  leaf: 'M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5zM16 8L2 22M17.5 15H9',
+  share: 'M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13', send: 'M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z',
+  plus: 'M12 5v14M5 12h14', minus: 'M5 12h14', home: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10',
+  card: 'M3 4h18a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM1 10h22',
+  shield: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', zap: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
+  nav: 'M3 11l19-9-9 19-2-8-8-2z', grid: 'M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z',
+  key: 'M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4',
+  info: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16v-4M12 8h.01', pen: 'M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z',
+  trend: 'M23 6l-9.5 9.5-5-5L1 18M17 6h6v6', bell: 'M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0',
+  wave: 'M2 12c2-3 4-3 6 0s4 3 6 0 4-3 6 0 M2 17c2-3 4-3 6 0s4 3 6 0 4-3 6 0', wind: 'M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2',
+  cup: 'M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3', dollar: 'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6',
+};
+function Icon({ n, cls = '', fill = false }) {
+  return html`<svg class=${'ic ' + cls + (fill ? ' fill' : '')} viewBox="0 0 24 24" aria-hidden="true"><path d=${P[n]} /></svg>`;
+}
+function Logo({ size = 26 }) {
+  return html`<svg width=${size} height=${size} viewBox="0 0 32 32" aria-hidden="true">
+    <circle cx="16" cy="16" r="15" class="lg-bg" />
+    <circle cx="11" cy="16" r="2.6" class="lg-fg" />
+    <path d="M15.5 11.5a6.4 6.4 0 0 1 0 9" class="lg-st" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8" />
+    <path d="M19.5 8.5a10.6 10.6 0 0 1 0 15" class="lg-st" stroke-width="2" fill="none" stroke-linecap="round" opacity=".4" />
+  </svg>`;
+}
+const fmtPrice = (p) => p === 0 ? 'Free' : '$' + p;
+const money = (n) => '$' + n.toFixed(2);
+const initials = (n) => n.replace('Rev. ', '').slice(0, 1);
+
+/* ---------------- illustrated "photos" of each space ---------------- */
+function Art({ a }) {
+  const g = 'a' + useId().replace(/[^a-zA-Z0-9]/g, '');
+  const wx = a.win === 'right' ? 226 : 56;
+  const winShape = a.arch
+    ? html`<path d="M150 160V82a50 50 0 0 1 100 0v78z" />`
+    : html`<rect x=${wx} y="34" width="118" height="124" rx="3" />`;
+  const base = a.arch ? 40 : (a.win === 'left' ? 222 : 52);
+  const slot = (i) => base + i * (a.win === 'left' ? 118 : 128);
+  const beam = a.arch ? '150,160 250,160 305,260 135,260' : `${wx},158 ${wx + 118},158 ${wx + 176},260 ${wx + 16},260`;
+  const props = (a.props || []).map((p, i) => {
+    const x = slot(i);
+    if (p === 'plant') return html`<g key=${p}>
+      ${[-40, -16, 8, 30, -62].map((r, j) => html`<ellipse key=${j} cx=${x} cy="128" rx="9" ry="27" fill=${a.leaf || '#4E7A55'} opacity=${0.75 + j * 0.05} transform=${`rotate(${r} ${x} 160)`} />`)}
+      <path d=${`M${x - 16} 158h32l-5 38h-22z`} fill=${a.pot || '#C8A27C'} /></g>`;
+    if (p === 'chair') return html`<g key=${p}>
+      <rect x=${x} y="124" width="92" height="56" rx="20" fill=${a.prop} />
+      <rect x=${x - 8} y="164" width="108" height="32" rx="12" fill=${a.prop} /><rect x=${x - 8} y="164" width="108" height="32" rx="12" fill="#000" opacity=".08" />
+      <rect x=${x - 14} y="146" width="20" height="50" rx="9" fill=${a.prop} /><rect x=${x + 86} y="146" width="20" height="50" rx="9" fill=${a.prop} />
+      <rect x=${x + 46} y="140" width="30" height="40" rx="6" fill=${a.prop2} opacity=".9" />
+      <path d=${`M${x - 4} 196v12M${x + 96} 196v12`} stroke="#3A2E24" stroke-width="4" stroke-linecap="round" /></g>`;
+    if (p === 'mat') return html`<g key=${p}>
+      <polygon points=${`${x - 14},216 ${x + 112},216 ${x + 136},244 ${x - 34},244`} fill=${a.prop} />
+      <polygon points=${`${x - 14},216 ${x + 112},216 ${x + 114},219 ${x - 16},219`} fill="#fff" opacity=".18" />
+      <ellipse cx=${x + 6} cy="212" rx="24" ry="9" fill=${a.prop2} /></g>`;
+    if (p === 'bed') return html`<g key=${p}>
+      <rect x=${x - 12} y="170" width="152" height="26" rx="6" fill=${a.prop2} />
+      <rect x=${x - 8} y="156" width="144" height="20" rx="9" fill=${a.prop} />
+      <ellipse cx=${x + 16} cy="152" rx="21" ry="10" fill=${a.prop} /><ellipse cx=${x + 16} cy="152" rx="21" ry="10" fill="#fff" opacity=".35" />
+      <rect x=${x + 58} y="156" width="78" height="22" rx="7" fill=${a.prop2} opacity=".85" /></g>`;
+    if (p === 'lamp') return html`<g key=${p}>
+      <circle cx=${x + 20} cy="112" r="72" fill=${`url(#${g}l)`} />
+      <path d=${`M${x + 20} 122v74`} stroke="#2B2622" stroke-width="3" />
+      <ellipse cx=${x + 20} cy="196" rx="13" ry="3" fill="#2B2622" />
+      <path d=${`M${x + 2} 124l7-24h22l7 24z`} fill="#F3E3C0" /></g>`;
+    if (p === 'shelf') return html`<g key=${p}>
+      <rect x=${x - 6} y="78" width="104" height="118" rx="3" fill=${a.prop} />
+      ${[0, 1, 2].map(r => html`<g key=${r}>${[0, 1, 2, 3, 4, 5, 6].map(b => html`<rect key=${b} x=${x + 2 + b * 13} y=${86 + r * 38 + (b % 3) * 3} width="10" height=${30 - (b % 3) * 3} rx="1.5" fill=${['#C9A46B', '#5E7F72', '#B5654A', '#E9DCC6', '#3F4E66', '#8E6A9E', '#D8B26E'][(b + r * 2) % 7]} />`)}</g>`)}
+      </g>`;
+    if (p === 'pews') return html`<g key=${p}>${[0, 1, 2].map(r => html`<g key=${r}>
+      <rect x="22" y=${172 + r * 26} width="140" height="9" rx="2" fill=${a.prop} /><rect x="238" y=${172 + r * 26} width="140" height="9" rx="2" fill=${a.prop} />
+      <rect x="22" y=${160 + r * 26} width="140" height="5" rx="2" fill=${a.prop} opacity=".7" /><rect x="238" y=${160 + r * 26} width="140" height="5" rx="2" fill=${a.prop} opacity=".7" /></g>`)}</g>`;
+    if (p === 'panels') return html`<g key=${p}>${[0, 1, 2, 3, 4, 5].map(k => html`<rect key=${k} x=${x - 12 + (k % 3) * 42} y=${54 + Math.floor(k / 3) * 46} width="36" height="40" rx="4" fill=${a.prop} opacity=${0.55 + (k % 2) * 0.25} />`)}</g>`;
+    if (p === 'circle') return html`<g key=${p}>
+      <ellipse cx="120" cy="226" rx="34" ry="10" fill="#000" opacity=".1" />
+      ${[[70, 214], [170, 214], [90, 240], [150, 240], [120, 206]].map(([cx, cy], k) => html`<ellipse key=${k} cx=${cx} cy=${cy} rx="22" ry="8" fill=${k % 2 ? a.prop2 : a.prop} />`)}
+      <circle cx="320" cy="150" r="26" fill=${a.prop2} opacity=".35" /></g>`;
+    return null;
+  });
+  return html`<svg class="art" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id=${g + 'w'} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color=${a.wall} /><stop offset="1" stop-color=${a.wall2} /></linearGradient>
+      <linearGradient id=${g + 's'} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color=${a.sky} /><stop offset="1" stop-color=${a.sky2} /></linearGradient>
+      <radialGradient id=${g + 'l'}><stop offset="0" stop-color=${a.glow} stop-opacity=".8" /><stop offset="1" stop-color=${a.glow} stop-opacity="0" /></radialGradient>
+      <clipPath id=${g + 'c'}>${winShape}</clipPath>
+    </defs>
+    <rect width="400" height="260" fill=${`url(#${g}w)`} />
+    <g clip-path=${`url(#${g}c)`}>
+      <rect x="0" y="0" width="400" height="200" fill=${`url(#${g}s)`} />
+      ${a.hills && html`<path d=${`M${wx - 10} 128q34-22 66-6t70-8v60h-136z`} fill="#8DAE78" /><path d=${`M${wx - 10} 142q50-14 140-2v40h-140z`} fill="#6F955F" />
+        <path d=${`M${wx} 140h120M${wx + 20} 132v14M${wx + 50} 132v14M${wx + 80} 132v14M${wx + 110} 132v14`} stroke="#F4EFE6" stroke-width="2" />`}
+      ${a.trees && html`<g fill="#5E8F55" opacity=".85">${[0, 1, 2, 3].map(k => html`<circle key=${k} cx=${(a.arch ? 150 : wx) + 10 + k * 34} cy=${70 + (k % 2) * 40} r="30" />`)}</g>
+        <g fill="#3F6E44" opacity=".7">${[0, 1, 2].map(k => html`<circle key=${k} cx=${wx + 28 + k * 36} cy=${130 - (k % 2) * 34} r="22" />`)}</g>`}
+    </g>
+    <g fill="none" stroke=${a.frame} stroke-width="7">${winShape}</g>
+    ${a.arch
+      ? html`<path d="M200 34v126M150 112h100" stroke=${a.frame} stroke-width="4" />`
+      : html`<path d=${`M${wx + 59} 34v124M${wx} 96h118`} stroke=${a.frame} stroke-width="4" /><rect x=${wx - 8} y="157" width="134" height="7" rx="2" fill=${a.frame} />`}
+    <rect x="0" y="190" width="400" height="6" fill="#000" opacity=".07" />
+    <rect x="0" y="196" width="400" height="64" fill=${a.floor} />
+    <polygon points=${beam} fill=${a.glow} opacity=".22" />
+    ${props}
+  </svg>`;
+}
+
+/* ---------------- stylised Lexington map ---------------- */
+const MAP_C = [200, 300];
+const ROADS = [
+  ['Georgetown Rd', 150, -20], ['Paris Pike', 392, 30], ['Winchester Rd', 430, 268], ['Richmond Rd', 430, 530],
+  ['Tates Creek Rd', 300, 730], ['Nicholasville Rd', 214, 730], ['Harrodsburg Rd', 60, 730], ['Versailles Rd', -30, 400], ['Leestown Rd', -30, 130],
+];
+const HOODS = [['DOWNTOWN', 172, 324], ['UK CAMPUS', 186, 352], ['CHEVY CHASE', 262, 362], ['HAMBURG', 352, 296], ['NOLI', 236, 238],
+  ['DISTILLERY DIST.', 112, 330], ['KENWICK', 300, 344], ['SOUTHLAND', 196, 466], ['BELL COURT', 268, 286]];
+function MapBase() {
+  const grid = [];
+  for (let i = -12; i <= 24; i++) { grid.push(`M${i * 32} -200V900`); grid.push(`M-300 ${i * 32}H700`); }
+  return html`<g>
+    <rect x="-300" y="-300" width="1000" height="1300" class="m-land" />
+    <path d=${grid.join('')} class="m-grid" transform="rotate(-24 200 300)" />
+    <ellipse cx="62" cy="150" rx="44" ry="26" class="m-park" />
+    <ellipse cx="22" cy="410" rx="34" ry="17" class="m-park m-track" />
+    <path d="M300 520q40-22 74 8q12 42-30 58q-48 6-44-66z" class="m-park" /><ellipse cx="338" cy="548" rx="17" ry="9" class="m-water" />
+    <path d="M212 402q24-9 36 6q5 22-17 28q-24 1-19-34z" class="m-park" />
+    <ellipse cx="118" cy="505" rx="26" ry="17" class="m-park" />
+    ${ROADS.map(([n, x, y]) => html`<path key=${n + 'c'} d=${`M200 300Q${(200 + x) / 2 + (y - 300) * 0.06} ${(300 + y) / 2 - (x - 200) * 0.06} ${x} ${y}`} class="m-case" stroke-width="9" />`)}
+    <ellipse cx="205" cy="318" rx="152" ry="162" class="m-case" stroke-width="10" />
+    <path d="M36 480Q120 610 222 618Q334 610 380 470" class="m-case" stroke-width="9" />
+    ${ROADS.map(([n, x, y]) => html`<path key=${n} d=${`M200 300Q${(200 + x) / 2 + (y - 300) * 0.06} ${(300 + y) / 2 - (x - 200) * 0.06} ${x} ${y}`} class="m-major" stroke-width="5" />`)}
+    <ellipse cx="205" cy="318" rx="152" ry="162" class="m-major" stroke-width="6" />
+    <path d="M36 480Q120 610 222 618Q334 610 380 470" class="m-major" stroke-width="5" />
+    <g class="m-label">
+      ${ROADS.map(([n, x, y]) => { const tx = 200 + (x - 200) * 0.78, ty = 300 + (y - 300) * 0.78; let ang = Math.atan2(y - 300, x - 200) * 180 / Math.PI; if (ang > 90) ang -= 180; if (ang < -90) ang += 180;
+        return html`<text key=${n} x=${tx} y=${ty - 6} text-anchor="middle" transform=${`rotate(${ang} ${tx} ${ty})`}>${n}</text>`; })}
+      <text x="352" y="172" transform="rotate(52 352 172)">New Circle Rd</text>
+      <text x="252" y="640" text-anchor="middle">Man o' War Blvd</text>
+      <text x="22" y="440" text-anchor="middle">Keeneland</text>
+      <text x="340" y="600" text-anchor="middle">Jacobson Park</text>
+      <text x="62" y="186" text-anchor="middle">Masterson Station</text>
+    </g>
+    <g class="m-hood">
+      ${HOODS.map(([n, x, y]) => html`<text key=${n} x=${x} y=${y} text-anchor="middle">${n}</text>`)}
+    </g>
+  </g>`;
+}
+function YouDot({ x = 214, y = 328 }) {
+  return html`<g><circle cx=${x} cy=${y} r="9" class="pulse m-you" /><circle cx=${x} cy=${y} r="7" class="m-you" stroke="#fff" stroke-width="3" /></g>`;
+}
+function Pin({ l, on, onClick }) {
+  const label = fmtPrice(l.price);
+  const w = label.length * 7.6 + 20;
+  return html`<g class=${'pin' + (on ? ' on' : '') + (l.price === 0 ? ' free' : '')} transform=${`translate(${l.x} ${l.y}) scale(${on ? 1.12 : 1})`} onClick=${onClick} role="button" aria-label=${l.title}>
+    <rect x=${-w / 2} y="-13" width=${w} height="26" rx="13" style=${{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,.18))' }} />
+    <text text-anchor="middle" y="4.5">${label}</text>
+  </g>`;
+}
+
+/* ---------------- filters ---------------- */
+const DEFAULT_F = { guests: 1, uses: [], sound: 'any', types: [], maxPrice: 40, freeOnly: false, dist: 25, amen: [], instant: false, now: false };
+const applyFilters = (f) => LISTINGS.filter(l =>
+  l.cap >= f.guests && f.uses.every(u => l.uses.includes(u)) && (f.sound === 'any' || l.sound === f.sound) &&
+  (!f.types.length || f.types.includes(l.type)) && l.price <= f.maxPrice && (!f.freeOnly || l.price === 0) &&
+  l.mi <= f.dist && f.amen.every(a => l.amen.includes(a)) && (!f.instant || l.instant) && (!f.now || l.now));
+const countActive = (f) => (f.guests > 1) + f.uses.length + (f.sound !== 'any') + f.types.length + (f.maxPrice < 40) + f.freeOnly + (f.dist < 25) + f.amen.length + f.instant + f.now;
+const toggleIn = (arr, v) => arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v];
+
+function ListingCard({ l, saved, onSave, onOpen }) {
+  return html`<article class="card">
+    <div class="card-art">
+      <button style=${{ display: 'block', width: '100%', height: '100%' }} onClick=${onOpen} aria-label=${'Open ' + l.title}><${Art} a=${l.art} /></button>
+      ${l.price === 0 ? html`<span class="badge">Free space</span>` : l.rating >= 4.95 ? html`<span class="badge">Guest favorite</span>` : l.now ? html`<span class="badge"><${Icon} n="zap" cls="sm" />Open now</span>` : null}
+      <span class="badge sound"><${Icon} n=${SOUND[l.sound].icon} cls="sm" />${SOUND[l.sound].short}</span>
+      <button class=${'heart' + (saved ? ' on' : '')} onClick=${(e) => { e.stopPropagation(); onSave(); }} aria-label=${saved ? 'Remove from saved' : 'Save'}><${Icon} n="heart" /></button>
+    </div>
+    <button class="card-body" style=${{ width: '100%', textAlign: 'left' }} onClick=${onOpen}>
+      <div class="spread" style=${{ alignItems: 'flex-start' }}><h3>${l.title}</h3><span class="stars tnum"><${Icon} n="star" fill=${true} />${l.rating.toFixed(2)}</span></div>
+      <p class="meta">${TYPE[l.type].label} · ${l.hood} · ${l.mi} mi</p>
+      <p class="meta tnum">Up to ${l.cap} ${l.cap > 1 ? 'people' : 'person'} · ${l.db} dB ambient</p>
+      <p class="price tnum">${l.price === 0 ? html`<b>Free</b> · donations welcome` : html`<b>$${l.price}</b> / hour`}</p>
+    </button>
+  </article>`;
+}
+
+function SearchPill({ f, onOpen }) {
+  const n = countActive(f);
+  return html`<button class="search" onClick=${onOpen}>
+    <${Icon} n="search" />
+    <span class="q"><b>Where do you need quiet?</b><span>Lexington · Today · ${f.guests} ${f.guests > 1 ? 'people' : 'guest'}${f.dist < 25 ? ` · within ${f.dist} mi` : ''}</span></span>
+    <span class="filter-btn"><${Icon} n="sliders" cls="sm" />${n > 0 && html`<span class="count">${n}</span>`}</span>
+  </button>`;
+}
+
+function Explore({ f, setF, openFilters, openListing, saved, toggleSave, mode, setMode }) {
+  const list = useMemo(() => applyFilters(f), [f]);
+  const [scrolled, setScrolled] = useState(false);
+  const [sel, setSel] = useState(null);
+  const chips = html`<div class="scroll-x cat-row">
+    <button class=${'chip' + (f.uses.length === 0 ? ' on' : '')} onClick=${() => setF({ ...f, uses: [] })}><${Icon} n="grid" cls="sm" />All</button>
+    ${USES.map(u => html`<button key=${u.id} class=${'chip' + (f.uses.includes(u.id) ? ' on' : '')} onClick=${() => setF({ ...f, uses: toggleIn(f.uses, u.id) })}><${Icon} n=${u.icon} cls="sm" />${u.label}</button>`)}
+  </div>`;
+
+  if (mode === 'map') {
+    const s = sel && list.find(l => l.id === sel);
+    return html`<div class="map-wrap fade">
+      <svg class="map" viewBox="20 90 360 560" preserveAspectRatio="xMidYMid slice" onClick=${() => setSel(null)}>
+        <${MapBase} /><${YouDot} />
+        ${list.filter(l => l.id !== sel).map(l => html`<${Pin} key=${l.id} l=${l} on=${false} onClick=${(e) => { e.stopPropagation(); setSel(l.id); }} />`)}
+        ${s && html`<${Pin} l=${s} on=${true} onClick=${(e) => e.stopPropagation()} />`}
+      </svg>
+      <div class="map-top"><${SearchPill} f=${f} onOpen=${openFilters} />
+        <div class="scroll-x cat-row" style=${{ margin: '10px -16px 0', padding: '2px 16px 4px' }}>
+          ${USES.map(u => html`<button key=${u.id} class=${'chip' + (f.uses.includes(u.id) ? ' on' : '')} style=${{ boxShadow: 'var(--shadow)' }} onClick=${() => setF({ ...f, uses: toggleIn(f.uses, u.id) })}>${u.label}</button>`)}
+        </div>
+      </div>
+      ${s ? html`<button class="map-card" onClick=${() => openListing(s.id)}>
+          <div class="thumb"><${Art} a=${s.art} /></div>
+          <div class="body"><span class="stars tnum" style=${{ fontSize: '13px' }}><${Icon} n="star" fill=${true} />${s.rating.toFixed(2)} (${s.reviews})</span>
+            <h3>${s.title}</h3><p class="muted" style=${{ fontSize: '13.5px' }}>${SOUND[s.sound].short} · up to ${s.cap} · ${s.mi} mi</p>
+            <p class="tnum" style=${{ fontSize: '14.5px' }}>${s.price === 0 ? html`<b>Free</b>` : html`<b>$${s.price}</b> / hour`}</p></div>
+        </button>`
+        : html`<div class="map-card" style=${{ justifyContent: 'center', padding: '14px', fontSize: '14px' }}><span class="muted">${list.length} quiet spaces in Lexington · tap a price to preview</span></div>`}
+      <button class="fab" onClick=${() => setMode('list')}><${Icon} n="list" cls="sm" />List</button>
+    </div>`;
+  }
+
+  return html`<div class="screen fade" onScroll=${(e) => setScrolled(e.currentTarget.scrollTop > 4)}>
+    <header class=${'ex-head' + (scrolled ? ' shadowed' : '')}>
+      <div class="ex-top"><span class="wordmark"><${Logo} />quiet space</span><span class="proto-pill">PROTOTYPE</span></div>
+      <${SearchPill} f=${f} onOpen=${openFilters} />
+      ${chips}
+    </header>
+    <div class="list-meta"><span class="tnum">${list.length} ${list.length === 1 ? 'space' : 'spaces'} near you</span>
+      <button class="row" style=${{ gap: '8px', fontWeight: 600, color: 'var(--ink)' }} onClick=${() => setF({ ...f, now: !f.now })}>Open right now <span class=${'switch' + (f.now ? ' on' : '')} style=${{ transform: 'scale(.8)' }}></span></button>
+    </div>
+    ${list.length === 0
+      ? html`<div class="empty"><${Icon} n="search" cls="lg" /><h3>No spaces match all of that yet</h3><p>Try removing a filter or two. More hosts are joining in Lexington every week.</p><button class="btn sm" onClick=${() => setF(DEFAULT_F)}>Clear filters</button></div>`
+      : html`<div class="cards">${list.map(l => html`<${ListingCard} key=${l.id} l=${l} saved=${saved.includes(l.id)} onSave=${() => toggleSave(l.id)} onOpen=${() => openListing(l.id)} />`)}</div>`}
+    <button class="fab" onClick=${() => setMode('map')}><${Icon} n="map" cls="sm" />Map</button>
+  </div>`;
+}
+
+/* ---------------- filters sheet ---------------- */
+function Toggle({ on, onClick, label, sub }) {
+  return html`<button class="switch-row" style=${{ width: '100%', textAlign: 'left' }} onClick=${onClick} role="switch" aria-checked=${on}>
+    <span><b>${label}</b>${sub && html`<span>${sub}</span>`}</span><span class=${'switch' + (on ? ' on' : '')}></span></button>`;
+}
+function FiltersSheet({ f, setF, onClose }) {
+  const [d, setD] = useState(f);
+  const n = applyFilters(d).length;
+  const buckets = [0, 5, 10, 15, 20, 25, 30, 35].map(b => LISTINGS.filter(l => (b === 0 ? l.price < 5 : l.price >= b && l.price < b + 5)).length);
+  const maxB = Math.max(...buckets);
+  const set = (k, v) => setD({ ...d, [k]: v });
+  return html`<${Fragment}>
+    <div class="scrim" onClick=${onClose}></div>
+    <div class="sheet" role="dialog" aria-label="Filters">
+      <div class="sheet-head"><button class="iconbtn" style=${{ boxShadow: 'none' }} onClick=${onClose} aria-label="Close"><${Icon} n="x" /></button><h2>Filters</h2><span></span></div>
+      <div class="sheet-body">
+        <div class="f-sec"><div class="spread"><div><h3>Who's coming</h3><p class="hint" style=${{ margin: 0 }}>Most spaces are made for 1 to 3 people</p></div>
+          <div class="stepper"><button disabled=${d.guests <= 1} onClick=${() => set('guests', d.guests - 1)} aria-label="Fewer"><${Icon} n="minus" cls="sm" /></button><b>${d.guests}</b><button disabled=${d.guests >= 4} onClick=${() => set('guests', d.guests + 1)} aria-label="More"><${Icon} n="plus" cls="sm" /></button></div></div></div>
+        <div class="f-sec"><h3>What's it for?</h3><p class="hint">Hosts choose what their space can be used for.</p>
+          <div class="wrap">${USES.map(u => html`<button key=${u.id} class=${'chip' + (d.uses.includes(u.id) ? ' on' : '')} onClick=${() => set('uses', toggleIn(d.uses, u.id))}><${Icon} n=${u.icon} cls="sm" />${u.label}</button>`)}</div></div>
+        <div class="f-sec"><h3>How much sound?</h3><p class="hint">Need to be loud, or need it silent? Match with the right host.</p>
+          <div class="sound-opts">
+            <button class=${'sound-opt' + (d.sound === 'any' ? ' on' : '')} onClick=${() => set('sound', 'any')}><${Icon} n="grid" /><span><b>Any</b><span>Show every space</span></span></button>
+            ${Object.entries(SOUND).map(([k, s]) => html`<button key=${k} class=${'sound-opt' + (d.sound === k ? ' on' : '')} onClick=${() => set('sound', k)}><${Icon} n=${s.icon} /><span><b>${s.label}</b><span>${s.note}</span></span></button>`)}
+          </div></div>
+        <div class="f-sec"><h3>Type of space</h3><p class="hint">Where it is and what it looks like.</p>
+          <div class="type-grid">${TYPES.map(t => { const ex = LISTINGS.find(l => l.type === t.id);
+            return html`<button key=${t.id} class=${'type-tile' + (d.types.includes(t.id) ? ' on' : '')} onClick=${() => set('types', toggleIn(d.types, t.id))}><div class="sw"><${Art} a=${ex.art} /></div>${t.label}</button>`; })}</div></div>
+        <div class="f-sec"><div class="spread"><h3>Price per hour</h3><b class="tnum">${d.freeOnly ? 'Free only' : d.maxPrice >= 40 ? 'Any price' : 'Up to $' + d.maxPrice}</b></div>
+          <p class="hint">Most Lexington spaces are $20 to $30 an hour, and some are free.</p>
+          <div class="hist">${buckets.map((c, i) => html`<i key=${i} class=${(i * 5 > d.maxPrice || (d.freeOnly && i > 0)) ? 'off' : ''} style=${{ height: (c / maxB) * 100 + '%', minHeight: c ? '6px' : '2px' }}></i>`)}</div>
+          <input id="price" type="range" min="0" max="40" step="1" value=${d.maxPrice} onChange=${(e) => set('maxPrice', +e.target.value)} aria-label="Maximum price per hour" />
+          <div class="spread muted tnum" style=${{ fontSize: '12.5px' }}><span>Free</span><span>$40+</span></div>
+          <${Toggle} on=${d.freeOnly} onClick=${() => set('freeOnly', !d.freeOnly)} label="Free spaces only" sub="Community rooms, chapels and generous hosts" /></div>
+        <div class="f-sec"><div class="spread"><h3>Distance</h3><b class="tnum">${d.dist >= 25 ? 'Anywhere' : 'Within ' + d.dist + ' mi'}</b></div>
+          <input id="dist" type="range" min="1" max="25" step="1" value=${d.dist} onChange=${(e) => set('dist', +e.target.value)} aria-label="Maximum distance in miles" /></div>
+        <div class="f-sec"><h3>Comforts</h3>
+          <div class="checks">${AMEN_FILTER.map(a => html`<button key=${a} class=${'check' + (d.amen.includes(a) ? ' on' : '')} onClick=${() => set('amen', toggleIn(d.amen, a))}>${AMEN[a][0]}<span class="box">${d.amen.includes(a) && html`<${Icon} n="check" cls="sm" />`}</span></button>`)}</div></div>
+        <div class="f-sec" style=${{ borderBottom: 0 }}><h3>Booking</h3>
+          <${Toggle} on=${d.instant} onClick=${() => set('instant', !d.instant)} label="Instant book" sub="Book without waiting for the host to approve" />
+          <${Toggle} on=${d.now} onClick=${() => set('now', !d.now)} label="Open right now" sub="Spaces with a free slot in the next hour" /></div>
+      </div>
+      <div class="sheet-foot pad-home"><button class="link" onClick=${() => setD(DEFAULT_F)}>Clear all</button>
+        <button class="btn" disabled=${n === 0} onClick=${() => { setF(d); onClose(); }}>${n === 0 ? 'No matches' : `Show ${n} ${n === 1 ? 'space' : 'spaces'}`}</button></div>
+    </div>
+  <//>`;
+}
+
+/* ---------------- dates + slots ---------------- */
+const DAY_MS = 86400000;
+const startOfToday = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+const dayAt = (i) => new Date(startOfToday().getTime() + i * DAY_MS);
+const fmtHour = (h) => `${((h + 11) % 12) + 1}:00 ${h < 12 ? 'AM' : 'PM'}`;
+const fmtDay = (d, long) => d.toLocaleDateString('en-US', long ? { weekday: 'long', month: 'long', day: 'numeric' } : { weekday: 'short', month: 'short', day: 'numeric' });
+const HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+const isBooked = (l, day, h) => (l.id * 7 + day * 3 + h * 5) % 6 === 0;
+const slotOk = (l, day, h, dur) => {
+  if (day === 0 && h <= new Date().getHours()) return false;
+  if (h + dur > 21) return false;
+  for (let k = h; k < h + dur; k++) if (isBooked(l, day, k)) return false;
+  return true;
+};
+const priceFor = (l, dur) => { const base = l.price * dur; const fee = Math.round(base * 8) / 100; return { base, fee, total: base + fee }; };
+
+function Listing({ l, saved, onSave, onBack, onBook, toast }) {
+  const rv = reviewsFor(l);
+  const cats = [['Quietness', 0.03], ['Cleanliness', -0.01], ['Accuracy', 0.02], ['Check-in', 0.0], ['Felt safe', 0.03], ['Value', -0.04]]
+    .map(([n, o]) => [n, Math.min(5, l.rating + o)]);
+  return html`<div class="screen with-footer enter">
+    <div class="hero"><${Art} a=${l.art} />
+      <div class="hero-btns"><button class="iconbtn" onClick=${onBack} aria-label="Back"><${Icon} n="back" /></button>
+        <div class="row"><button class="iconbtn" onClick=${() => toast('Share opens your phone\'s share sheet in the app')} aria-label="Share"><${Icon} n="share" cls="sm" /></button>
+          <button class="iconbtn" onClick=${onSave} aria-label="Save" style=${saved ? { color: '#E5484D' } : null}><${Icon} n="heart" cls="sm" fill=${saved} /></button></div></div>
+      <span class="count">1 / 8</span>
+    </div>
+    <div class="detail">
+      <div class="detail-head">
+        <h1>${l.title}</h1>
+        <p class="sub">${TYPE[l.type].label} in ${l.hood}, Lexington · ${l.mi} mi away</p>
+        <p class="sub tnum" style=${{ marginTop: '4px' }}>Up to ${l.cap} ${l.cap > 1 ? 'people' : 'person'} · ${SOUND[l.sound].label} · ${l.instant ? 'Instant book' : 'Host approves requests'}</p>
+        <div class="fav-row"><span class="lbl">${l.rating >= 4.95 ? 'Guest favorite' : 'Loved by guests'}<br /><span class="muted" style=${{ fontWeight: 500, fontSize: '12px' }}>One of the calmest spaces on Quiet Space</span></span>
+          <span class="num"><b class="tnum">${l.rating.toFixed(2)}</b><span>rating</span></span><span class="num"><b class="tnum">${l.reviews}</b><span>reviews</span></span></div>
+      </div>
+      <div class="section"><div class="host-row"><span class="avatar" style=${{ background: l.host.color }}>${initials(l.host.name)}</span>
+        <span><b>Hosted by ${l.host.name}</b><span>Host since ${l.host.since} · Replies ${l.host.reply}</span></span></div></div>
+
+      <div class="section"><h2>How quiet is it?</h2>
+        <div class="qbig"><b class="tnum">${l.db}</b><span class="muted">dB ambient, measured by the host</span></div>
+        <div class="qmeter"><div class="bar"></div><span class="mark" style=${{ left: ((l.db - 10) / 50) * 100 + '%' }}></span>
+          <div class="scale"><span>10 · breathing</span><span>30 · whisper</span><span>60 · talking</span></div></div>
+        <div class="policy" style=${{ marginTop: '18px' }}><${Icon} n=${SOUND[l.sound].icon} /><div><b>${SOUND[l.sound].label}</b><p>${SOUND[l.sound].note}</p></div></div>
+      </div>
+
+      <div class="section"><h2>Good for</h2>
+        <div class="goodfor">${l.uses.map(u => html`<span key=${u}><${Icon} n=${USE[u].icon} cls="sm" />${USE[u].label}</span>`)}</div></div>
+      <div class="section"><h2>About this space</h2><p class="prose">${l.blurb}</p></div>
+      <div class="section"><h2>What this space offers</h2>
+        <div class="amen">${l.amen.map(a => html`<div key=${a}><${Icon} n=${AMEN[a][1]} />${AMEN[a][0]}</div>`)}</div></div>
+      <div class="section"><h2>House guidelines</h2>
+        <div class="rules">${l.rules.map((r, i) => html`<div key=${i}><${Icon} n="check" cls="sm" />${r}</div>`)}</div></div>
+      <div class="section"><h2>Where you'll be</h2>
+        <div class="minimap"><svg viewBox=${`${l.x - 80} ${l.y - 45} 160 90`} preserveAspectRatio="xMidYMid slice" style=${{ width: '100%', height: '100%' }}>
+          <${MapBase} /><circle cx=${l.x} cy=${l.y} r="16" class="m-area" /></svg></div>
+        <p class="muted" style=${{ fontSize: '14px', marginTop: '10px' }}>${l.hood}, Lexington, KY. The exact address and door code are shared once you book.</p></div>
+
+      <div class="section"><div class="rv-sum"><${Icon} n="star" fill=${true} /><b class="tnum">${l.rating.toFixed(2)}</b><span class="muted">· ${l.reviews} reviews</span></div>
+        <div class="rv-cats">${cats.map(([n, v]) => html`<div class="rv-cat" key=${n}><div class="t"><span>${n}</span><b class="tnum">${v.toFixed(1)}</b></div><div class="b"><i style=${{ width: (v / 5) * 100 + '%' }}></i></div></div>`)}</div>
+        <div class="rv-cards">${rv.map((r, i) => html`<div class="rv-card" key=${i}>
+          <div class="rv-who"><span class="avatar" style=${{ background: r.color }}>${r.who[0]}</span><span><b>${r.who}</b><span>${r.when}</span></span></div>
+          <p>${r.text}</p></div>`)}</div>
+        <div class="twoway"><${Icon} n="shield" /><span><b style=${{ color: 'var(--ink)' }}>Reviews go both ways.</b> After every visit, guests review the space and hosts review the guest. Both are published at the same time so nobody can retaliate.</span></div>
+      </div>
+      <div class="section"><h2>Cancellation</h2><p class="prose muted">Free cancellation up to 2 hours before your visit. After that, the host keeps 50%.</p></div>
+    </div>
+    <div class="footer-bar pad-home"><div class="p tnum">${l.price === 0 ? html`<b>Free</b><span>Donations welcome</span>` : html`<b>$${l.price}</b> / hour<span>${l.now ? 'Free slot within the hour' : 'Next opening tomorrow'}</span>`}</div>
+      <button class="btn" onClick=${onBook}>Choose a time</button></div>
+  </div>`;
+}
+
+/* ---------------- booking sheet ---------------- */
+function BookingSheet({ l, onClose, onContinue }) {
+  const firstDay = HOURS.some(h => slotOk(l, 0, h, 1)) ? 0 : 1;
+  const [day, setDay] = useState(firstDay);
+  const [dur, setDur] = useState(1);
+  const [h, setH] = useState(null);
+  const [guests, setGuests] = useState(1);
+  const p = priceFor(l, dur);
+  useEffect(() => { if (h != null && !slotOk(l, day, h, dur)) setH(null); }, [day, dur]);
+  return html`<${Fragment}>
+    <div class="scrim" onClick=${onClose}></div>
+    <div class="sheet" role="dialog" aria-label="Choose a time">
+      <div class="sheet-head"><button class="iconbtn" style=${{ boxShadow: 'none' }} onClick=${onClose} aria-label="Close"><${Icon} n="x" /></button><h2>Choose a time</h2><span></span></div>
+      <div class="sheet-body">
+        <div class="f-sec"><h3 style=${{ marginBottom: '12px' }}>Day</h3>
+          <div class="days">${[0, 1, 2, 3, 4, 5, 6].map(i => { const d = dayAt(i);
+            return html`<button key=${i} class=${'day' + (day === i ? ' on' : '')} onClick=${() => setDay(i)}><span>${i === 0 ? 'Today' : d.toLocaleDateString('en-US', { weekday: 'short' })}</span><b>${d.getDate()}</b></button>`; })}</div></div>
+        <div class="f-sec"><h3 style=${{ marginBottom: '12px' }}>How long?</h3>
+          <div class="wrap">${[1, 2, 3].map(n => html`<button key=${n} class=${'chip' + (dur === n ? ' on' : '')} onClick=${() => setDur(n)}>${n} hour${n > 1 ? 's' : ''}</button>`)}</div></div>
+        <div class="f-sec"><div class="spread" style=${{ marginBottom: '12px' }}><h3 style=${{ margin: 0 }}>Start time</h3><span class="muted" style=${{ fontSize: '13px' }}>${fmtDay(dayAt(day))}</span></div>
+          <div class="slots">${HOURS.map(x => html`<button key=${x} class=${'slot' + (h === x ? ' on' : '')} disabled=${!slotOk(l, day, x, dur)} onClick=${() => setH(x)}>${fmtHour(x)}</button>`)}</div></div>
+        <div class="f-sec"><div class="spread"><div><h3>People</h3><p class="hint" style=${{ margin: 0 }}>This space fits up to ${l.cap}</p></div>
+          <div class="stepper"><button disabled=${guests <= 1} onClick=${() => setGuests(guests - 1)} aria-label="Fewer"><${Icon} n="minus" cls="sm" /></button><b>${guests}</b><button disabled=${guests >= l.cap} onClick=${() => setGuests(guests + 1)} aria-label="More"><${Icon} n="plus" cls="sm" /></button></div></div></div>
+        <div class="f-sec" style=${{ borderBottom: 0 }}><div class="lines">
+          <div class="spread"><span>${l.price === 0 ? 'Free space' : `$${l.price} × ${dur} hour${dur > 1 ? 's' : ''}`}</span><span>${money(p.base)}</span></div>
+          <div class="spread"><span>Quiet Space service fee</span><span>${money(p.fee)}</span></div>
+          <div class="spread total"><span>Total</span><span>${money(p.total)}</span></div></div></div>
+      </div>
+      <div class="sheet-foot pad-home"><div class="tnum" style=${{ fontSize: '14px' }}>${h == null ? html`<span class="muted">Pick a start time</span>` : html`<b>${fmtHour(h)} – ${fmtHour(h + dur)}</b><br /><span class="muted">${fmtDay(dayAt(day))}</span>`}</div>
+        <button class="btn" disabled=${h == null} onClick=${() => onContinue({ day, h, dur, guests })}>${l.instant ? 'Reserve' : 'Request'}</button></div>
+    </div>
+  <//>`;
+}
+
+/* ---------------- checkout ---------------- */
+const INTENTIONS = ['Rest', 'Cry it out', 'Meditate', 'Pray', 'Breathe', 'Just be'];
+function Checkout({ l, b, onBack, onPaid }) {
+  const p = priceFor(l, b.dur);
+  const [pay, setPay] = useState('apple');
+  const [intent, setIntent] = useState([]);
+  const [share, setShare] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [busy, setBusy] = useState(false);
+  const go = () => { setBusy(true); setTimeout(() => onPaid({ intent, share, msg, total: p.total }), 1100); };
+  return html`<div class="screen with-footer enter">
+    <div class="chat-head" style=${{ position: 'sticky', top: 0, zIndex: 3 }}><button class="iconbtn" style=${{ boxShadow: 'none' }} onClick=${onBack} aria-label="Back"><${Icon} n="back" /></button><b style=${{ fontSize: '17px' }}>${l.instant ? 'Confirm and pay' : 'Request to book'}</b></div>
+    <div style=${{ paddingBottom: '110px' }}>
+      <div class="section" style=${{ borderTop: 0 }}><div class="summary"><div class="thumb"><${Art} a=${l.art} /></div>
+        <div><h3>${l.title}</h3><p class="muted" style=${{ fontSize: '13.5px', marginTop: '3px' }}>${TYPE[l.type].label} · ${l.hood}</p><span class="stars tnum" style=${{ fontSize: '13px', marginTop: '4px' }}><${Icon} n="star" fill=${true} />${l.rating.toFixed(2)} (${l.reviews})</span></div></div></div>
+      <div class="section"><h2>Your visit</h2><div class="stack" style=${{ gap: '16px' }}>
+        <div class="kv"><span style=${{ margin: 0 }}><b>Date</b><span>${fmtDay(dayAt(b.day), true)}</span></span><button class="link" onClick=${onBack}>Edit</button></div>
+        <div class="kv"><span style=${{ margin: 0 }}><b>Time</b><span class="tnum">${fmtHour(b.h)} – ${fmtHour(b.h + b.dur)}</span></span></div>
+        <div class="kv"><span style=${{ margin: 0 }}><b>People</b><span>${b.guests}</span></span></div></div></div>
+      <div class="section"><h2>Your intention <span class="muted" style=${{ fontWeight: 500, fontSize: '14px' }}>optional</span></h2>
+        <div class="wrap">${INTENTIONS.map(t => html`<button key=${t} class=${'chip' + (intent.includes(t) ? ' on' : '')} onClick=${() => setIntent(toggleIn(intent, t))}>${t}</button>`)}</div>
+        <div class="private"><${Icon} n="lock" cls="sm" />Private to you unless you choose to share it.</div>
+        <${Toggle} on=${share} onClick=${() => setShare(!share)} label="Share with ${l.host.name}" sub="Helps your host set the room up for you" /></div>
+      <div class="section"><h2>Message ${l.host.name} <span class="muted" style=${{ fontWeight: 500, fontSize: '14px' }}>optional</span></h2>
+        <textarea id="hostmsg" class="input" placeholder="Anything your host should know? Arriving early, need a step-free entry, first time doing this..." value=${msg} onChange=${(e) => setMsg(e.target.value)}></textarea></div>
+      <div class="section"><h2>Price details</h2><div class="lines">
+        <div class="spread"><span>${l.price === 0 ? 'Free space' : `$${l.price} × ${b.dur} hour${b.dur > 1 ? 's' : ''}`}</span><span>${money(p.base)}</span></div>
+        <div class="spread"><span>Quiet Space service fee</span><span>${money(p.fee)}</span></div>
+        <div class="spread total"><span>Total (USD)</span><span>${money(p.total)}</span></div></div></div>
+      <div class="section"><h2>Pay with</h2><div class="stack">
+        ${[['apple', 'Pay', 'Apple Pay'], ['google', 'G Pay', 'Google Pay'], ['card', 'VISA', 'Visa ending in 4242']].map(([k, logo, name]) => html`<button key=${k} class=${'pay' + (pay === k ? ' on' : '')} onClick=${() => setPay(k)}><span class="logo">${logo}</span>${name}<span class="radio"></span></button>`)}</div>
+        <div class="private" style=${{ marginTop: '14px' }}><${Icon} n="shield" cls="sm" />Your payment is held securely and released to the host after your visit.</div></div>
+    </div>
+    <div class="footer-bar pad-home"><button class="btn block" disabled=${busy} onClick=${go}>${busy ? html`<span class="spinner"></span>Processing` : l.price === 0 && p.total === 0 ? 'Confirm booking' : `Confirm and pay ${money(p.total)}`}</button></div>
+  </div>`;
+}
+
+function Confirmed({ l, b, onMessage, onTrips, onExplore }) {
+  return html`<div class="screen enter"><div class="done">
+      <div class="ring"><${Icon} n="check" /></div>
+      <h1>${l.instant ? "You're booked" : 'Request sent'}</h1>
+      <p class="muted" style=${{ maxWidth: '300px', lineHeight: 1.5 }}>${l.instant ? `${l.host.name} has your booking. We'll remind you 30 minutes before.` : `${l.host.name} usually replies ${l.host.reply}. You won't be charged unless they accept.`}</p>
+    </div>
+    <div class="pad stack" style=${{ gap: '12px', paddingBottom: '30px' }}>
+      <div class="summary" style=${{ padding: '14px', borderRadius: '18px', background: 'var(--surface)', border: '1px solid var(--line)' }}><div class="thumb"><${Art} a=${l.art} /></div>
+        <div><h3>${l.title}</h3><p class="muted tnum" style=${{ fontSize: '13.5px', marginTop: '4px' }}>${fmtDay(dayAt(b.day))}<br />${fmtHour(b.h)} – ${fmtHour(b.h + b.dur)}</p></div></div>
+      <div class="code"><${Icon} n="key" /><span style=${{ fontSize: '14px' }}><b>Door code</b><br /><span class="muted">Unlocks 15 min before</span></span>
+        <span class="digits"><i>•</i><i>•</i><i>•</i><i>•</i></span></div>
+      <button class="btn block" onClick=${onMessage}><${Icon} n="chat" cls="sm" />Message ${l.host.name}</button>
+      <button class="btn block ghost" onClick=${onTrips}>View my bookings</button>
+      <button class="link" style=${{ justifySelf: 'center', marginTop: '6px' }} onClick=${onExplore}>Back to explore</button>
+    </div></div>`;
+}
+
+/* ---------------- seed state ---------------- */
+const INIT_BOOKINGS = [
+  { id: 'u1', lid: 7, day: 2, h: 10, dur: 1, guests: 1, status: 'Confirmed' },
+  { id: 'p1', lid: 3, day: -6, h: 13, dur: 1, guests: 1, past: true, reviewed: false },
+  { id: 'p2', lid: 4, day: -13, h: 9, dur: 1, guests: 1, past: true, reviewed: true, hostReview: 'Arrived on time, kept the loft peaceful and left it exactly as they found it. Welcome back any morning.' },
+];
+const INIT_THREADS = [
+  { id: 't7', lid: 7, name: 'Ruth', color: '#7A4E3F', sub: 'Reading nook in a 1910 bungalow', unread: true, msgs: [
+    { me: false, text: "Hi! Looking forward to your visit. The chair by the window gets the best light around 10. Tea's on the side table, help yourself." }] },
+  { id: 'team', name: 'Quiet Space', team: true, sub: 'Support', unread: false, msgs: [
+    { me: false, text: 'Welcome to Quiet Space. Every host is ID-verified and every space has a measured quiet level. If anything ever feels off during a visit, tap Help and a real person answers.' }] },
+];
+const HOST_REPLIES = ["That works perfectly. See you then!", "Of course. I'll leave a few extra blankets out for you.", "No problem at all. Take all the time you need.", "Thanks for letting me know! The side entrance will be unlocked."];
+
+/* ---------------- bookings ---------------- */
+function Trips({ bookings, openListing, openReview, openChat, toast }) {
+  const [seg, setSeg] = useState('up');
+  const up = bookings.filter(b => !b.past);
+  const past = bookings.filter(b => b.past);
+  return html`<div class="screen fade">
+    <div class="page-h"><h1>Bookings</h1></div>
+    <div class="seg"><button class=${seg === 'up' ? 'on' : ''} onClick=${() => setSeg('up')}>Upcoming (${up.length})</button><button class=${seg === 'past' ? 'on' : ''} onClick=${() => setSeg('past')}>Past</button></div>
+    <div class="pad stack" style=${{ gap: '14px', paddingBottom: '30px' }}>
+      ${seg === 'up' && up.length === 0 && html`<div class="empty"><${Icon} n="cal" cls="lg" /><h3>No visits booked yet</h3><p>When you book a quiet space it shows up here with your door code.</p></div>`}
+      ${seg === 'up' && up.map(b => { const l = BY_ID[b.lid];
+        return html`<div class="trip" key=${b.id}>
+          <button class="ta" style=${{ display: 'block', width: '100%' }} onClick=${() => openListing(l.id)}><${Art} a=${l.art} /></button>
+          <div class="tb"><span class=${'status'} style=${b.status !== 'Confirmed' ? { color: 'var(--warn)' } : null}>${b.status}</span>
+            <h3>${l.title}</h3><p class="muted tnum" style=${{ fontSize: '14px' }}>${fmtDay(dayAt(b.day), true)} · ${fmtHour(b.h)} – ${fmtHour(b.h + b.dur)}</p>
+            <div class="row" style=${{ marginTop: '10px' }}><button class="btn sm" onClick=${() => openChat(l.id)}><${Icon} n="chat" cls="sm" />Message ${l.host.name}</button>
+              <button class="btn sm ghost" onClick=${() => toast('Directions open in Apple or Google Maps')}><${Icon} n="nav" cls="sm" />Directions</button></div></div></div>`; })}
+      ${seg === 'past' && past.map(b => { const l = BY_ID[b.lid];
+        return html`<div class="trip" key=${b.id}><div class="tb">
+          <div class="summary"><div class="thumb" style=${{ width: '72px', height: '64px' }}><${Art} a=${l.art} /></div>
+            <div><h3>${l.title}</h3><p class="muted tnum" style=${{ fontSize: '13.5px', marginTop: '3px' }}>${fmtDay(dayAt(b.day))} · ${fmtHour(b.h)}</p></div></div>
+          ${b.reviewed
+            ? html`<div class="twoway" style=${{ marginTop: '12px' }}><${Icon} n="star" fill=${true} /><span><b style=${{ color: 'var(--ink)' }}>${l.host.name} rated you 5 stars</b><br />"${b.hostReview || 'Lovely guest. Welcome back anytime.'}"</span></div>`
+            : html`<button class="btn sm line" style=${{ marginTop: '12px' }} onClick=${() => openReview(b.id)}><${Icon} n="star" cls="sm" />Leave a review</button>`}
+        </div></div>`; })}
+    </div></div>`;
+}
+
+const REVIEW_TAGS = ['Truly quiet', 'Felt safe', 'Spotless', 'As pictured', 'Easy check-in', 'Kind host', 'Good value'];
+function Review({ b, onBack, onSubmit }) {
+  const l = BY_ID[b.lid];
+  const [stars, setStars] = useState(0);
+  const [tags, setTags] = useState([]);
+  const [text, setText] = useState('');
+  return html`<div class="screen with-footer enter">
+    <div class="chat-head"><button class="iconbtn" style=${{ boxShadow: 'none' }} onClick=${onBack} aria-label="Back"><${Icon} n="back" /></button><b style=${{ fontSize: '17px' }}>Review your visit</b></div>
+    <div style=${{ paddingBottom: '110px' }}>
+      <div class="section" style=${{ borderTop: 0, textAlign: 'center' }}>
+        <div class="summary" style=${{ justifyContent: 'center', textAlign: 'left' }}><div class="thumb"><${Art} a=${l.art} /></div><div><h3>${l.title}</h3><p class="muted" style=${{ fontSize: '13.5px' }}>Hosted by ${l.host.name}</p></div></div>
+        <h2 style=${{ marginTop: '22px', marginBottom: '4px' }}>How was your time there?</h2>
+        <div class="star-pick">${[1, 2, 3, 4, 5].map(n => html`<button key=${n} class=${n <= stars ? 'on' : ''} onClick=${() => setStars(n)} aria-label=${n + ' stars'}><${Icon} n="star" fill=${true} /></button>`)}</div></div>
+      <div class="section"><h2>What stood out?</h2><div class="wrap">${REVIEW_TAGS.map(t => html`<button key=${t} class=${'chip' + (tags.includes(t) ? ' on' : '')} onClick=${() => setTags(toggleIn(tags, t))}>${t}</button>`)}</div></div>
+      <div class="section"><h2>Tell future guests</h2><textarea id="reviewtext" class="input" placeholder="What made it a good place to rest, pray, cry or just be?" value=${text} onChange=${(e) => setText(e.target.value)}></textarea>
+        <div class="twoway"><${Icon} n="shield" /><span>${l.host.name} is reviewing you too. Both reviews go live together once you've both submitted, or after 14 days.</span></div></div>
+    </div>
+    <div class="footer-bar pad-home"><button class="btn block" disabled=${!stars} onClick=${onSubmit}>Submit review</button></div>
+  </div>`;
+}
+
+/* ---------------- inbox + chat ---------------- */
+function Inbox({ threads, openThread }) {
+  return html`<div class="screen fade"><div class="page-h"><h1>Inbox</h1></div>
+    <div style=${{ paddingTop: '6px' }}>${threads.map(t => { const last = t.msgs[t.msgs.length - 1];
+      return html`<button class="thread" key=${t.id} onClick=${() => openThread(t.id)}>
+        ${t.team ? html`<span class="avatar" style=${{ background: 'var(--surface-2)' }}><${Logo} size=${30} /></span>` : html`<span class="avatar" style=${{ background: t.color }}>${initials(t.name)}</span>`}
+        <span class="tx"><b>${t.name}</b><span class="muted" style=${{ fontSize: '12.5px', marginTop: 0 }}>${t.sub}</span><span class=${t.unread ? 'unread' : ''}>${last.me ? 'You: ' : ''}${last.text}</span></span>
+        <time>${t.when || 'Now'}</time></button>`; })}</div></div>`;
+}
+function Chat({ t, onBack, onSend }) {
+  const [txt, setTxt] = useState('');
+  const [typing, setTyping] = useState(false);
+  const end = useRef(null);
+  useEffect(() => { end.current && end.current.scrollIntoView({ block: 'end' }); }, [t.msgs.length, typing]);
+  const send = (e) => {
+    e.preventDefault(); if (!txt.trim()) return;
+    onSend(t.id, { me: true, text: txt.trim() }); setTxt('');
+    if (!t.team) { setTyping(true); setTimeout(() => { setTyping(false); onSend(t.id, { me: false, text: HOST_REPLIES[t.msgs.length % HOST_REPLIES.length] }); }, 1500); }
+  };
+  return html`<div class="screen enter" style=${{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div class="chat-head"><button class="iconbtn" style=${{ boxShadow: 'none' }} onClick=${onBack} aria-label="Back"><${Icon} n="back" /></button>
+      ${t.team ? html`<${Logo} size=${36} />` : html`<span class="avatar" style=${{ background: t.color }}>${initials(t.name)}</span>`}
+      <span><b>${t.name}</b><span>${t.team ? 'Usually replies in minutes' : t.sub}</span></span></div>
+    <div style=${{ flex: 1, overflowY: 'auto', minHeight: 0 }}><div class="msgs">
+      <span class="msg-day">Today</span>
+      ${t.msgs.map((m, i) => html`<div key=${i} class=${'msg ' + (m.me ? 'me' : 'them')}>${m.text}</div>`)}
+      ${typing && html`<div class="typing"><i></i><i></i><i></i></div>`}
+      <div ref=${end}></div></div></div>
+    <form class="composer pad-home" onSubmit=${send}><input id="chatinput" placeholder="Write a message" value=${txt} onChange=${(e) => setTxt(e.target.value)} aria-label="Message" />
+      <button type="submit" disabled=${!txt.trim()} aria-label="Send"><${Icon} n="send" cls="sm" /></button></form>
+  </div>`;
+}
+
+/* ---------------- saved ---------------- */
+function Saved({ saved, toggleSave, openListing, goExplore }) {
+  const list = LISTINGS.filter(l => saved.includes(l.id));
+  return html`<div class="screen fade"><div class="page-h"><h1>Saved</h1></div>
+    ${list.length === 0
+      ? html`<div class="empty"><${Icon} n="heart" cls="lg" /><h3>Nothing saved yet</h3><p>Tap the heart on any space to keep it here for later.</p><button class="btn sm" onClick=${goExplore}>Find a space</button></div>`
+      : html`<div class="cards" style=${{ paddingTop: '12px', paddingBottom: '30px' }}>${list.map(l => html`<${ListingCard} key=${l.id} l=${l} saved=${true} onSave=${() => toggleSave(l.id)} onOpen=${() => openListing(l.id)} />`)}</div>`}
+  </div>`;
+}
+
+/* ---------------- profile + host ---------------- */
+const PALETTES = [
+  { id: 'sage', name: 'A · Sage', sw: ['#3D6B58', '#93C4AC', '#F4F6F2'] },
+  { id: 'dusk', name: 'B · Dusk', sw: ['#46598F', '#AAB7EA', '#F2F3F8'] },
+  { id: 'plum', name: 'C · Plum', sw: ['#7A4870', '#DDAED3', '#F7F2F5'] },
+];
+function PalettePicker({ palette, setPalette }) {
+  return html`<div class="palettes">${PALETTES.map(p => html`<button key=${p.id} class=${'pal' + (palette === p.id ? ' on' : '')} onClick=${() => setPalette(p.id)} aria-pressed=${palette === p.id}>
+    <span class="sw">${p.sw.map(c => html`<i key=${c} style=${{ background: c }}></i>`)}</span>${p.name}</button>`)}</div>`;
+}
+function Profile({ palette, setPalette, openHost, toast, showWelcome }) {
+  return html`<div class="screen fade"><div class="page-h"><h1>Profile</h1></div>
+    <div class="prof"><span class="avatar" style=${{ background: 'var(--accent)', color: 'var(--on-accent)' }}>C</span><div><h2>Cassie</h2><p class="muted">Guest · Lexington, KY</p></div></div>
+    <div class="panel"><div class="spread"><h3>Your guest rating</h3><span class="stars tnum"><${Icon} n="star" fill=${true} />4.9</span></div>
+      <p class="muted" style=${{ fontSize: '14px', marginTop: '6px', lineHeight: 1.45 }}>From 7 host reviews. Hosts see this before they accept a request.</p>
+      <div class="wrap" style=${{ marginTop: '12px' }}>${['Respectful', 'Left it tidy', 'On time'].map(t => html`<span key=${t} class="chip on" style=${{ height: '32px', fontSize: '13px' }}><${Icon} n="check" cls="sm" />${t}</span>`)}</div></div>
+    <button class="host-cta" onClick=${openHost}>
+      <svg class="waves" width="170" height="170" viewBox="0 0 32 32" aria-hidden="true"><path d="M15.5 11.5a6.4 6.4 0 0 1 0 9M19.5 8.5a10.6 10.6 0 0 1 0 15M23.5 5.5a14.8 14.8 0 0 1 0 21" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" /></svg>
+      <h3>Have a quiet room?</h3><p>See what hosting on Quiet Space looks like and what you could earn.</p></button>
+    <div class="panel"><h3>Brand direction</h3><p class="muted" style=${{ fontSize: '14px', marginTop: '6px', lineHeight: 1.45 }}>Three color options for the brand. Tap one and the whole app changes.</p>
+      <${PalettePicker} palette=${palette} setPalette=${setPalette} /></div>
+    <div class="menu">${[['card', 'Payments & payouts'], ['bell', 'Notifications'], ['shield', 'Privacy & safety'], ['info', 'Help center']].map(([i, t]) => html`<button key=${t} onClick=${() => toast(t + ' is part of the full build')}><${Icon} n=${i} />${t}<${Icon} n="next" cls="sm" /></button>`)}
+      <button onClick=${showWelcome}><${Icon} n="sun" />About this prototype<${Icon} n="next" cls="sm" /></button></div>
+    <p class="muted" style=${{ textAlign: 'center', fontSize: '12.5px', padding: '4px 20px 30px' }}>Prototype by Kraydl · sample data only</p>
+  </div>`;
+}
+function Host({ onBack, toast }) {
+  const [hrs, setHrs] = useState(10);
+  const [rate, setRate] = useState(24);
+  const monthly = Math.round(hrs * rate * 4.33 * 0.97);
+  return html`<div class="screen enter">
+    <div class="chat-head" style=${{ position: 'sticky', top: 0, zIndex: 3 }}><button class="iconbtn" style=${{ boxShadow: 'none' }} onClick=${onBack} aria-label="Back"><${Icon} n="back" /></button><b style=${{ fontSize: '17px' }}>Host on Quiet Space</b></div>
+    <div class="pad" style=${{ paddingTop: '22px', paddingBottom: '8px' }}>
+      <p class="eyebrow">For hosts in Lexington</p>
+      <h1 class="display" style=${{ fontSize: '30px', lineHeight: 1.15, marginTop: '8px' }}>Your quiet room could be someone's whole afternoon.</h1>
+      <p class="muted" style=${{ marginTop: '10px', lineHeight: 1.55, fontSize: '15px' }}>Guest houses, yoga studios, spare rooms, chapels. If it's calm, people need it, and you set when and how it's used.</p></div>
+    <div class="panel" style=${{ marginTop: '18px' }}><p class="eyebrow">Earnings estimate</p>
+      <div class="big-num" style=${{ marginTop: '10px' }}>$${monthly.toLocaleString()}<span class="muted" style=${{ fontFamily: 'var(--font-body)', fontSize: '15px' }}> / month</span></div>
+      <div style=${{ marginTop: '16px' }}><div class="spread" style=${{ fontSize: '14px' }}><span>Hours booked per week</span><b class="tnum">${hrs}</b></div>
+        <input id="hrs" type="range" min="2" max="40" value=${hrs} onChange=${(e) => setHrs(+e.target.value)} aria-label="Hours per week" /></div>
+      <div><div class="spread" style=${{ fontSize: '14px' }}><span>Your hourly rate</span><b class="tnum">${rate === 0 ? 'Free' : '$' + rate}</b></div>
+        <input id="rate" type="range" min="0" max="40" value=${rate} onChange=${(e) => setRate(+e.target.value)} aria-label="Hourly rate" /></div>
+      <p class="muted" style=${{ fontSize: '12.5px' }}>After a 3% host fee. Offering your space for free? It still shows up, with a donations option.</p></div>
+    <div class="section" style=${{ borderTop: 0 }}><h2>How hosting works</h2><div class="steps">
+      ${[['Measure your quiet', 'Our in-app sound check records your room\'s ambient level in decibels, so guests know exactly what to expect.'],
+        ['Say what it\'s for', 'Choose the uses you\'re happy with (rest, prayer, emotional release, small circles) and how much sound is OK.'],
+        ['Get booked and paid', 'Guests book by the hour. Payment is held securely and paid out to you after each visit.']].map(([t, d], i) => html`<div class="step" key=${i}><span class="n">${i + 1}</span><div><b>${t}</b><p>${d}</p></div></div>`)}</div></div>
+    <div class="section"><h2>Your host dashboard</h2><p class="muted" style=${{ fontSize: '13px', marginTop: '-6px', marginBottom: '14px' }}>Preview with sample numbers</p>
+      <div class="kpis"><div class="kpi"><b>3</b><span>Visits today</span></div><div class="kpi"><b>$412</b><span>This month</span></div><div class="kpi"><b>4.96</b><span>Rating</span></div></div>
+      <div class="stack" style=${{ marginTop: '14px' }}>${[['Ava', '#8E7AA8', '10:00 AM', 'Rest · 1 hr', '4.9'], ['Marcus', '#5E8C7C', '1:00 PM', 'Meditate · 2 hrs', '5.0'], ['Leah', '#A86A7E', '6:00 PM', 'Shared: “Cry it out”', '4.8']].map(([n, c, t, w, r]) => html`
+        <div key=${n} class="host-row" style=${{ padding: '12px 14px', borderRadius: '14px', border: '1px solid var(--line)', background: 'var(--surface)' }}><span class="avatar" style=${{ background: c, width: '38px', height: '38px', fontSize: '14px' }}>${n[0]}</span>
+          <span style=${{ flex: 1 }}><b>${n} · ${t}</b><span>${w}</span></span><span class="stars tnum" style=${{ fontSize: '13px' }}><${Icon} n="star" fill=${true} />${r}</span></div>`)}</div>
+      <p class="muted" style=${{ fontSize: '13px', marginTop: '12px', lineHeight: 1.45 }}>You see every guest's rating from other hosts before you accept.</p></div>
+    <div class="pad" style=${{ paddingBottom: '34px' }}><button class="btn block" onClick=${() => toast('Host sign-up is the next flow we\'ll design together')}>Start your listing</button></div>
+  </div>`;
+}
+
+/* ---------------- welcome + desktop notes ---------------- */
+const TRY = [
+  ['sliders', 'Open Filters and try “Emotional release” with “Loud is welcome”.'],
+  ['map', 'Tap Map to see spaces around Lexington.'],
+  ['cal', 'Open a space, pick a time and book it. The checkout works end to end.'],
+  ['chat', 'Message your host from the confirmation screen.'],
+  ['star', 'Leave a review under Bookings → Past.'],
+  ['home', 'Peek at the host side under Profile → Have a quiet room?'],
+];
+function Welcome({ onClose, palette, setPalette }) {
+  return html`<${Fragment}><div class="scrim" onClick=${onClose}></div>
+    <div class="sheet welcome" role="dialog" aria-label="Welcome">
+      <div class="sheet-body">
+        <div class="row" style=${{ marginTop: '18px' }}><${Logo} size=${34} /><span class="eyebrow">Prototype for Cassie</span></div>
+        <h2>Hi Cassie, here's Quiet Space.</h2>
+        <p>We built this clickable prototype from our call on October 16. It's the guest side of the app, laid out like Airbnb but made for quiet. Every space, host and review here is sample content set in Lexington.</p>
+        <ul class="try">${TRY.map(([i, t]) => html`<li key=${i}><${Icon} n=${i} cls="sm" /><span>${t}</span></li>`)}</ul>
+        <p style=${{ marginTop: '16px' }}><b style=${{ color: 'var(--ink)' }}>Pick a color direction</b> (you can change it later in Profile):</p>
+        <${PalettePicker} palette=${palette} setPalette=${setPalette} />
+      </div>
+      <div class="sheet-foot pad-home" style=${{ borderTop: 0 }}><button class="btn block" onClick=${onClose}>Start exploring</button></div>
+    </div><//>`;
+}
+function Notes({ palette, setPalette }) {
+  return html`<aside class="notes">
+    <div class="brandline"><span class="wordmark"><${Logo} size=${30} />quiet space</span></div>
+    <p class="eyebrow">Prototype v1 · Oct 20, 2026</p>
+    <h2 style=${{ marginTop: '10px' }}>Find a quiet place to rest, pray, cry or just be.</h2>
+    <p>The guest side of Quiet Space for Lexington, built from our October 16 call: Airbnb-style search with quiet-specific filters, a map, hourly booking with in-app payment, messaging, and reviews on both sides.</p>
+    <p class="eyebrow np">Things to try</p>
+    <ol>${TRY.map(([, t], i) => html`<li key=${i}>${t}</li>`)}</ol>
+    <p class="eyebrow np">Brand direction</p>
+    <${PalettePicker} palette=${palette} setPalette=${setPalette} />
+    <p class="by">Prepared by Kraydl for Cassie Cunningham. Open this link on your phone for the full app feel.</p>
+  </aside>`;
+}
+
+/* ---------------- app shell ---------------- */
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { } } };
+function StatusBar() {
+  return html`<div class="statusbar"><span>9:41</span><span class="sb-icons">
+    <svg width="18" height="12" viewBox="0 0 18 12" aria-hidden="true" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1" /><rect x="5" y="5" width="3" height="7" rx="1" /><rect x="10" y="2.5" width="3" height="9.5" rx="1" /><rect x="15" y="0" width="3" height="12" rx="1" /></svg>
+    <svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true" fill="currentColor"><path d="M8 2.2c2.4 0 4.6.9 6.2 2.5l1.3-1.4A10.6 10.6 0 0 0 8 .2 10.6 10.6 0 0 0 .5 3.3l1.3 1.4A8.7 8.7 0 0 1 8 2.2zm0 3.9c1.4 0 2.6.5 3.6 1.4l1.3-1.4A7 7 0 0 0 8 4.1a7 7 0 0 0-4.9 2l1.3 1.4c1-.9 2.2-1.4 3.6-1.4zM8 12l2.3-2.4a3.2 3.2 0 0 0-4.6 0z" /></svg>
+    <svg width="26" height="12" viewBox="0 0 26 12" aria-hidden="true"><rect x=".5" y=".5" width="22" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45" /><rect x="2" y="2" width="17" height="8" rx="2" fill="currentColor" /><rect x="23.5" y="4" width="2" height="4" rx="1" fill="currentColor" opacity=".45" /></svg>
+  </span></div>`;
+}
+function App() {
+  const [tab, setTab] = useState('explore');
+  const [mode, setMode] = useState('list');
+  const [stack, setStack] = useState([]);
+  const [sheet, setSheet] = useState(null);
+  const [f, setF] = useState(DEFAULT_F);
+  const [saved, setSaved] = useState([1, 5]);
+  const [bookings, setBookings] = useState(INIT_BOOKINGS);
+  const [threads, setThreads] = useState(INIT_THREADS);
+  const [palette, setPaletteRaw] = useState(() => store.get('qs-palette') || 'sage');
+  const [welcome, setWelcome] = useState(() => !store.get('qs-welcomed'));
+  const [toastMsg, setToastMsg] = useState(null);
+
+  useEffect(() => { if (!toastMsg) return; const t = setTimeout(() => setToastMsg(null), 2600); return () => clearTimeout(t); }, [toastMsg]);
+  const setPalette = (p) => { setPaletteRaw(p); store.set('qs-palette', p); };
+  const closeWelcome = () => { setWelcome(false); store.set('qs-welcomed', '1'); };
+  const toast = (m) => setToastMsg(m);
+  const push = (s) => setStack(st => [...st, s]);
+  const pop = () => setStack(st => st.slice(0, -1));
+  const toggleSave = (id) => { const was = saved.includes(id); setSaved(toggleIn(saved, id)); toast(was ? 'Removed from Saved' : 'Saved. Find it under the Saved tab'); };
+  const goTab = (t) => { setStack([]); setSheet(null); setTab(t); setThreads(ts => t === 'inbox' ? ts : ts); };
+  const threadFor = (lid) => {
+    const l = BY_ID[lid]; const id = 't' + lid;
+    if (!threads.find(t => t.id === id)) setThreads(ts => [{ id, lid, name: l.host.name, color: l.host.color, sub: l.title, unread: false, msgs: [{ me: false, text: `Hi, I'm ${l.host.name}. Let me know if you have any questions about the space before your visit.` }] }, ...ts]);
+    return id;
+  };
+  const openThread = (id) => { setThreads(ts => ts.map(t => t.id === id ? { ...t, unread: false } : t)); push({ kind: 'chat', id }); };
+  const sendMsg = (id, m) => setThreads(ts => ts.map(t => t.id === id ? { ...t, msgs: [...t.msgs, m], when: 'Now' } : t));
+  const unread = threads.some(t => t.unread);
+
+  const top = stack[stack.length - 1];
+  let body;
+  if (top && top.kind === 'listing') {
+    const l = BY_ID[top.id];
+    body = html`<${Listing} key=${'l' + l.id} l=${l} saved=${saved.includes(l.id)} onSave=${() => toggleSave(l.id)} onBack=${pop} onBook=${() => setSheet({ kind: 'book', id: l.id })} toast=${toast} />`;
+  } else if (top && top.kind === 'checkout') {
+    const l = BY_ID[top.id];
+    body = html`<${Checkout} l=${l} b=${top.b} onBack=${pop} onPaid=${(extra) => {
+      const nb = { id: 'b' + Date.now(), lid: l.id, ...top.b, status: l.instant ? 'Confirmed' : 'Awaiting host' };
+      setBookings(bs => [nb, ...bs]);
+      const tid = threadFor(l.id);
+      if (extra.msg.trim()) setTimeout(() => sendMsg(tid, { me: true, text: extra.msg.trim() }), 0);
+      setStack(st => [...st.slice(0, -1), { kind: 'done', id: l.id, b: top.b }]);
+    }} />`;
+  } else if (top && top.kind === 'done') {
+    const l = BY_ID[top.id];
+    body = html`<${Confirmed} l=${l} b=${top.b} onMessage=${() => { const id = threadFor(l.id); setStack([]); setTab('inbox'); setTimeout(() => push({ kind: 'chat', id }), 0); }}
+      onTrips=${() => goTab('trips')} onExplore=${() => goTab('explore')} />`;
+  } else if (top && top.kind === 'chat') {
+    const t = threads.find(x => x.id === top.id);
+    body = t ? html`<${Chat} t=${t} onBack=${pop} onSend=${sendMsg} />` : null;
+  } else if (top && top.kind === 'review') {
+    const b = bookings.find(x => x.id === top.id);
+    body = html`<${Review} b=${b} onBack=${pop} onSubmit=${() => { setBookings(bs => bs.map(x => x.id === b.id ? { ...x, reviewed: true } : x)); pop(); toast('Thanks! Your review goes live once your host reviews you too.'); }} />`;
+  } else if (top && top.kind === 'host') {
+    body = html`<${Host} onBack=${pop} toast=${toast} />`;
+  } else if (tab === 'explore') {
+    body = html`<${Explore} f=${f} setF=${setF} openFilters=${() => setSheet({ kind: 'filters' })} openListing=${(id) => push({ kind: 'listing', id })} saved=${saved} toggleSave=${toggleSave} mode=${mode} setMode=${setMode} />`;
+  } else if (tab === 'saved') {
+    body = html`<${Saved} saved=${saved} toggleSave=${toggleSave} openListing=${(id) => push({ kind: 'listing', id })} goExplore=${() => goTab('explore')} />`;
+  } else if (tab === 'trips') {
+    body = html`<${Trips} bookings=${bookings} openListing=${(id) => push({ kind: 'listing', id })} openReview=${(id) => push({ kind: 'review', id })} openChat=${(lid) => openThread(threadFor(lid))} toast=${toast} />`;
+  } else if (tab === 'inbox') {
+    body = html`<${Inbox} threads=${threads} openThread=${openThread} />`;
+  } else {
+    body = html`<${Profile} palette=${palette} setPalette=${setPalette} openHost=${() => push({ kind: 'host' })} toast=${toast} showWelcome=${() => setWelcome(true)} />`;
+  }
+  const showTabs = !top || top.kind === 'host';
+  const TABS = [['explore', 'search', 'Explore'], ['saved', 'heart', 'Saved'], ['trips', 'cal', 'Bookings'], ['inbox', 'chat', 'Inbox'], ['profile', 'user', 'Profile']];
+
+  return html`<div class="stage" data-palette=${palette}>
+    <div class="app device">
+      <div class="viewport">
+        <${StatusBar} />
+        <div class="main">
+          ${body}
+          ${sheet && sheet.kind === 'filters' && html`<${FiltersSheet} f=${f} setF=${setF} onClose=${() => setSheet(null)} />`}
+          ${sheet && sheet.kind === 'book' && html`<${BookingSheet} l=${BY_ID[sheet.id]} onClose=${() => setSheet(null)} onContinue=${(b) => { setSheet(null); push({ kind: 'checkout', id: sheet.id, b }); }} />`}
+          ${welcome && html`<${Welcome} onClose=${closeWelcome} palette=${palette} setPalette=${setPalette} />`}
+          ${toastMsg && html`<div class="toast" role="status"><${Icon} n="check" cls="sm" />${toastMsg}</div>`}
+        </div>
+        ${showTabs && html`<nav class="tabbar">${TABS.map(([id, ic, label]) => html`<button key=${id} class=${'tab' + (tab === id && !top ? ' on' : '')} onClick=${() => goTab(id)}>
+          <${Icon} n=${ic} />${label}${id === 'inbox' && unread && html`<span class="dot"></span>`}</button>`)}</nav>`}
+      </div>
+      <div class="homebar"></div>
+    </div>
+    <${Notes} palette=${palette} setPalette=${setPalette} />
+  </div>`;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(html`<${App} />`);
+
+</script>
+</body></html>
