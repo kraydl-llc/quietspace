@@ -1,8 +1,9 @@
 /* ---------------- profile + host ---------------- */
 const PALETTES = [
-  { id: 'sage', name: 'A · Sage', sw: ['#3D6B58', '#93C4AC', '#F4F6F2'] },
-  { id: 'dusk', name: 'B · Dusk', sw: ['#46598F', '#AAB7EA', '#F2F3F8'] },
-  { id: 'plum', name: 'C · Plum', sw: ['#7A4870', '#DDAED3', '#F7F2F5'] },
+  { id: 'sage', name: 'A · Sage', sw: ['#3D6B58', '#BFC5B9', '#EDEAE4'] },
+  { id: 'soft', name: 'B · Soft sage', sw: ['#5F6F5C', '#BFC5B9', '#EAD7BF'] },
+  { id: 'clay', name: 'C · Clay', sw: ['#8A6A52', '#C6B09B', '#EAD7BF'] },
+  { id: 'stone', name: 'D · Stone', sw: ['#66614F', '#9F9A8A', '#EDEAE4'] },
 ];
 function PalettePicker({ palette, setPalette }) {
   return html`<div class="palettes">${PALETTES.map(p => html`<button key=${p.id} class=${'pal' + (palette === p.id ? ' on' : '')} onClick=${() => setPalette(p.id)} aria-pressed=${palette === p.id}>
@@ -17,7 +18,7 @@ function Profile({ palette, setPalette, openHost, toast, showWelcome }) {
     <button class="host-cta" onClick=${openHost}>
       <svg class="waves" width="170" height="170" viewBox="0 0 32 32" aria-hidden="true"><path d="M15.5 11.5a6.4 6.4 0 0 1 0 9M19.5 8.5a10.6 10.6 0 0 1 0 15M23.5 5.5a14.8 14.8 0 0 1 0 21" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" /></svg>
       <h3>Have a quiet room?</h3><p>See what hosting on Quiet Space looks like and what you could earn.</p></button>
-    <div class="panel"><h3>Brand direction</h3><p class="muted" style=${{ fontSize: '14px', marginTop: '6px', lineHeight: 1.45 }}>Three color options for the brand. Tap one and the whole app changes.</p>
+    <div class="panel"><h3>Brand direction</h3><p class="muted" style=${{ fontSize: '14px', marginTop: '6px', lineHeight: 1.45 }}>Four natural color schemes based on your palette. Tap one and the whole app changes.</p>
       <${PalettePicker} palette=${palette} setPalette=${setPalette} /></div>
     <div class="menu">${[['card', 'Payments & payouts'], ['bell', 'Notifications'], ['shield', 'Privacy & safety'], ['info', 'Help center']].map(([i, t]) => html`<button key=${t} onClick=${() => toast(t + ' is part of the full build')}><${Icon} n=${i} />${t}<${Icon} n="next" cls="sm" /></button>`)}
       <button onClick=${showWelcome}><${Icon} n="sun" />About this prototype<${Icon} n="next" cls="sm" /></button></div>
@@ -45,6 +46,7 @@ function Host({ onBack, toast }) {
       ${[['Measure your quiet', 'Our in-app sound check records your room\'s ambient level in decibels, so guests know exactly what to expect.'],
         ['Say what it\'s for', 'Choose the uses you\'re happy with (rest, prayer, emotional release, small circles) and how much sound is OK.'],
         ['Get booked and paid', 'Guests book by the hour. Payment is held securely and paid out to you after each visit.']].map(([t, d], i) => html`<div class="step" key=${i}><span class="n">${i + 1}</span><div><b>${t}</b><p>${d}</p></div></div>`)}</div></div>
+    <${HostSettings} rate=${rate} setRate=${setRate} />
     <div class="section"><h2>Your host dashboard</h2><p class="muted" style=${{ fontSize: '13px', marginTop: '-6px', marginBottom: '14px' }}>Preview with sample numbers</p>
       <div class="kpis"><div class="kpi"><b>3</b><span>Visits today</span></div><div class="kpi"><b>$412</b><span>This month</span></div><div class="kpi"><b>4.96</b><span>Rating</span></div></div>
       <div class="stack" style=${{ marginTop: '14px' }}>${[['Ava', '#8E7AA8', '10:00 AM', 'Rest · 1 hr', '4.9'], ['Marcus', '#5E8C7C', '1:00 PM', 'Meditate · 2 hrs', '5.0'], ['Leah', '#A86A7E', '6:00 PM', 'Shared: “Cry it out”', '4.8']].map(([n, c, t, w, r]) => html`
@@ -55,22 +57,49 @@ function Host({ onBack, toast }) {
   </div>`;
 }
 
+function HostSettings({ rate, setRate }) {
+  const [days, setDays] = useState([1, 2, 3, 4, 5, 6, 0]);
+  const [minH, setMinH] = useState(1);
+  const [maxH, setMaxH] = useState(3);
+  const [o, setO] = useState({ kids: true, second: true, food: false, outdoor: true, emotional: true });
+  const flip = (k) => setO({ ...o, [k]: !o[k] });
+  const D = [['M', 1], ['T', 2], ['W', 3], ['T', 4], ['F', 5], ['S', 6], ['S', 0]];
+  return html`<div class="section"><h2>Set your own rules</h2>
+    <p class="muted" style=${{ fontSize: '14px', marginTop: '-6px', lineHeight: 1.45 }}>Everything here shows on your listing and powers guests' search filters.</p>
+    <div class="set-block"><${Stepper} label="Price per hour" sub=${rate === 0 ? 'Free, donations optional' : `$${rate} an hour`} val=${rate} min=${0} max=${40} set=${setRate} /></div>
+    <div class="set-block"><b style=${{ fontSize: '15px' }}>Availability</b><p class="muted" style=${{ fontSize: '13px', marginTop: '2px' }}>Open 8 AM to 8 PM on the days you pick</p>
+      <div class="dchips">${D.map(([t, i]) => html`<button key=${i} class=${'dchip' + (days.includes(i) ? ' on' : '')} onClick=${() => setDays(toggleIn(days, i))} aria-pressed=${days.includes(i)}>${t}</button>`)}</div></div>
+    <div class="set-block"><${Stepper} label="Minimum booking" sub="Hours per visit" val=${minH} min=${1} max=${maxH} set=${setMinH} />
+      <${Stepper} label="Maximum booking" sub="Hours per visit" val=${maxH} min=${minH} max=${8} set=${setMaxH} /></div>
+    <div class="set-block">
+      <${Toggle} on=${o.second} onClick=${() => flip('second')} label="A second person is permitted" sub="Guests can bring one other person" />
+      <${Toggle} on=${o.kids} onClick=${() => flip('kids')} label="Children are permitted" sub="Shows up for guests searching with children" />
+      <${Toggle} on=${o.food} onClick=${() => flip('food')} label="Food and drinks are permitted" />
+      <${Toggle} on=${o.outdoor} onClick=${() => flip('outdoor')} label="Outdoor access included" sub="A porch, garden or deck guests can use" />
+      <${Toggle} on=${o.emotional} onClick=${() => flip('emotional')} label="Suitable for emotional processing" sub="Guests may cry, vent or make some noise" /></div>
+    <div class="set-block" style=${{ borderBottom: 0 }}><b style=${{ fontSize: '15px' }}>House rules</b>
+      <textarea id="hostrules" class="input" style=${{ marginTop: '10px' }} defaultValue=${'Shoes off at the door' + String.fromCharCode(10) + 'No phone calls inside'}></textarea>
+      <b style=${{ fontSize: '15px', display: 'block', marginTop: '14px' }}>Any other restrictions</b>
+      <textarea id="hostrestrict" class="input" style=${{ marginTop: '10px' }} defaultValue="No candles or incense"></textarea></div>
+  </div>`;
+}
+
 /* ---------------- welcome + desktop notes ---------------- */
 const TRY = [
-  ['sliders', 'Open Filters and try “Emotional release” with “Loud is welcome”.'],
+  ['sliders', 'Open Filters. Everything from your guest list is there, from Privacy and Quietness to Child accessibility.'],
+  ['check', 'Open any space to see what its host allows: children, food, outdoor access, emotional processing and more.'],
+  ['cal', 'Book a space. Times and visit lengths now follow each host’s settings.'],
+  ['home', 'See what hosts control under Profile → Have a quiet room? → Set your own rules.'],
   ['map', 'Tap Map to see spaces around Lexington.'],
-  ['cal', 'Open a space, pick a time and book it. The checkout works end to end.'],
-  ['chat', 'Message your host from the confirmation screen.'],
   ['star', 'Leave a review under Bookings → Past.'],
-  ['home', 'Peek at the host side under Profile → Have a quiet room?'],
 ];
 function Welcome({ onClose, palette, setPalette }) {
   return html`<${Fragment}><div class="scrim" onClick=${onClose}></div>
     <div class="sheet welcome" role="dialog" aria-label="Welcome">
       <div class="sheet-body">
-        <div class="row" style=${{ marginTop: '18px' }}><${Logo} size=${34} /><span class="eyebrow">Prototype for Cassie</span></div>
-        <h2>Hi Cassie, here's Quiet Space.</h2>
-        <p>We built this clickable prototype from our call on October 16. It's the guest side of the app, laid out like Airbnb but made for quiet. Every space, host and review here is sample content set in Lexington.</p>
+        <div class="row" style=${{ marginTop: '18px' }}><${Logo} size=${34} /><span class="eyebrow">Version 2 for Cassie</span></div>
+        <h2>Hi Cassie, here's version 2.</h2>
+        <p>Thank you for the filter list! Every filter you sent is now in the app, along with the settings hosts control and four natural color schemes based on your palette. Every space, host and review is still sample content set in Lexington.</p>
         <ul class="try">${TRY.map(([i, t]) => html`<li key=${i}><${Icon} n=${i} cls="sm" /><span>${t}</span></li>`)}</ul>
         <p style=${{ marginTop: '16px' }}><b style=${{ color: 'var(--ink)' }}>Pick a color direction</b> (you can change it later in Profile):</p>
         <${PalettePicker} palette=${palette} setPalette=${setPalette} />
@@ -81,9 +110,9 @@ function Welcome({ onClose, palette, setPalette }) {
 function Notes({ palette, setPalette }) {
   return html`<aside class="notes">
     <div class="brandline"><span class="wordmark"><${Logo} size=${30} />quiet space</span></div>
-    <p class="eyebrow">Prototype v1 · Oct 20, 2026</p>
+    <p class="eyebrow">Prototype v2 · Oct 23, 2026</p>
     <h2 style=${{ marginTop: '10px' }}>Find a quiet place to rest, pray, cry or just be.</h2>
-    <p>The guest side of Quiet Space for Lexington, built from our October 16 call: Airbnb-style search with quiet-specific filters, a map, hourly booking with in-app payment, messaging, and reviews on both sides.</p>
+    <p>Version 2 adds every filter from your list, the settings hosts control on their listings, and four natural color schemes based on the palette you sent. Search, map, hourly booking, payment, messaging and two-way reviews all still work.</p>
     <p class="eyebrow np">Things to try</p>
     <ol>${TRY.map(([, t], i) => html`<li key=${i}>${t}</li>`)}</ol>
     <p class="eyebrow np">Brand direction</p>
@@ -110,13 +139,13 @@ function App() {
   const [saved, setSaved] = useState([1, 5]);
   const [bookings, setBookings] = useState(INIT_BOOKINGS);
   const [threads, setThreads] = useState(INIT_THREADS);
-  const [palette, setPaletteRaw] = useState(() => store.get('qs-palette') || 'sage');
-  const [welcome, setWelcome] = useState(() => !store.get('qs-welcomed'));
+  const [palette, setPaletteRaw] = useState(() => { const p = store.get('qs-palette'); return PALETTES.some(x => x.id === p) ? p : 'sage'; });
+  const [welcome, setWelcome] = useState(() => !store.get('qs-welcomed-v2'));
   const [toastMsg, setToastMsg] = useState(null);
 
   useEffect(() => { if (!toastMsg) return; const t = setTimeout(() => setToastMsg(null), 2600); return () => clearTimeout(t); }, [toastMsg]);
   const setPalette = (p) => { setPaletteRaw(p); store.set('qs-palette', p); };
-  const closeWelcome = () => { setWelcome(false); store.set('qs-welcomed', '1'); };
+  const closeWelcome = () => { setWelcome(false); store.set('qs-welcomed-v2', '1'); };
   const toast = (m) => setToastMsg(m);
   const push = (s) => setStack(st => [...st, s]);
   const pop = () => setStack(st => st.slice(0, -1));

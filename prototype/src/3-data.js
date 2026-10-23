@@ -5,7 +5,7 @@ const html = htm.bind(React.createElement);
 const USES = [
   { id: 'rest', label: 'Rest & nap', icon: 'moon' },
   { id: 'meditate', label: 'Meditation', icon: 'leaf' },
-  { id: 'release', label: 'Emotional release', icon: 'wave' },
+  { id: 'release', label: 'Emotional processing', icon: 'wave' },
   { id: 'prayer', label: 'Prayer', icon: 'sun' },
   { id: 'journal', label: 'Read & journal', icon: 'pen' },
   { id: 'breath', label: 'Breathwork', icon: 'wind' },
@@ -168,3 +168,29 @@ function Logo({ size = 26 }) {
 const fmtPrice = (p) => p === 0 ? 'Free' : '$' + p;
 const money = (n) => '$' + n.toFixed(2);
 const initials = (n) => n.replace('Rev. ', '').slice(0, 1);
+
+/* ---------------- host-set details (Cassie's list, Oct 21) ---------------- */
+const PRIVACY = {
+  entire: { label: 'Entire space to yourself', short: 'Entire space', note: 'Nobody else is in the space while you are there.' },
+  room: { label: 'Private room', short: 'Private room', note: 'The room is yours. Others may be elsewhere in the building.' },
+  shared: { label: 'Shared quiet space', short: 'Shared', note: 'Others may be there too, keeping the same quiet.' },
+};
+const SETTING = { indoor: 'Indoor only', both: 'Indoor, with outdoor access', outdoor: 'Outdoor space' };
+const EXTRA = {
+  1: { setting: 'both', privacy: 'entire', kids: true, food: true, minH: 1, maxH: 3, open: [8, 20], hostRating: 4.98, restrict: 'No candles or incense' },
+  2: { setting: 'indoor', privacy: 'room', kids: false, food: false, minH: 1, maxH: 2, open: [17, 21], hostRating: 4.9, restrict: 'Water only in the studio' },
+  3: { setting: 'indoor', privacy: 'room', kids: false, food: false, minH: 1, maxH: 3, open: [9, 21], hostRating: 4.9, restrict: 'Scent-free: no perfume or essential oils' },
+  4: { setting: 'indoor', privacy: 'shared', kids: true, food: false, minH: 1, maxH: 3, open: [8, 11], wk: true, hostRating: 4.96, restrict: 'Keep to the loft during services' },
+  5: { setting: 'both', privacy: 'entire', kids: false, food: true, minH: 1, maxH: 4, open: [8, 21], hostRating: 5.0, restrict: 'No smoking anywhere in the garden' },
+  6: { setting: 'indoor', privacy: 'room', kids: false, food: false, minH: 1, maxH: 2, open: [8, 21], hostRating: 4.85, restrict: 'One guest at a time' },
+  7: { setting: 'indoor', privacy: 'room', kids: true, food: true, minH: 1, maxH: 3, open: [9, 18], hostRating: 4.93, restrict: 'Please handle the old books gently' },
+  8: { setting: 'indoor', privacy: 'entire', kids: true, food: false, minH: 1, maxH: 3, open: [10, 21], hostRating: 4.94, restrict: 'No food in the recording room' },
+  9: { setting: 'outdoor', privacy: 'entire', kids: true, food: true, minH: 2, maxH: 4, open: [8, 20], hostRating: 5.0, restrict: 'Do not feed or approach the horses' },
+  10: { setting: 'indoor', privacy: 'room', kids: false, food: false, minH: 1, maxH: 1, open: [11, 15], wk: true, hostRating: 4.81, restrict: 'Check in at the front desk tablet' },
+  11: { setting: 'both', privacy: 'entire', kids: true, food: true, minH: 1, maxH: 3, open: [8, 20], hostRating: 4.97, restrict: 'Children must be with an adult on the ladder' },
+  12: { setting: 'indoor', privacy: 'shared', kids: true, food: true, minH: 1, maxH: 2, open: [9, 18], hostRating: 4.9, restrict: 'Maximum 2 hours per visit' },
+};
+LISTINGS.forEach(l => Object.assign(l, EXTRA[l.id]));
+const fmtH = (h) => `${((h + 11) % 12) + 1} ${h < 12 ? 'AM' : 'PM'}`;
+const hoursLabel = (l) => `${l.wk ? 'Weekdays' : 'Every day'}, ${fmtH(l.open[0])} to ${fmtH(l.open[1])}`;
+const lengthLabel = (l) => l.minH === l.maxH ? `${l.minH} hour${l.minH > 1 ? 's' : ''} per visit` : `${l.minH} to ${l.maxH} hours per visit`;

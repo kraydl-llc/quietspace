@@ -8,12 +8,22 @@ const HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 const isBooked = (l, day, h) => (l.id * 7 + day * 3 + h * 5) % 6 === 0;
 const slotOk = (l, day, h, dur) => {
   if (day === 0 && h <= new Date().getHours()) return false;
-  if (h + dur > 21) return false;
+  if (h < l.open[0] || h + dur > l.open[1]) return false;
+  if (l.wk && [0, 6].includes(dayAt(day).getDay())) return false;
   for (let k = h; k < h + dur; k++) if (isBooked(l, day, k)) return false;
   return true;
 };
 const priceFor = (l, dur) => { const base = l.price * dur; const fee = Math.round(base * 8) / 100; return { base, fee, total: base + fee }; };
 
+const hostSet = (l) => [
+  ['clock', `Open ${hoursLabel(l).replace('Every day', 'every day').replace('Weekdays', 'weekdays')}`, null],
+  ['cal', `Book ${lengthLabel(l)}`, null],
+  ['users', l.cap > 1 ? `A second person is welcome (up to ${l.cap} people)` : 'One guest at a time', l.cap > 1],
+  ['user', l.kids ? 'Children are welcome' : 'Adults only, no children', l.kids],
+  ['cup', l.food ? 'Food and drinks are fine' : 'No food or drinks', l.food],
+  ['sun', l.setting === 'indoor' ? 'No outdoor access' : l.setting === 'outdoor' ? 'This is an outdoor space' : 'Outdoor access included', l.setting !== 'indoor'],
+  ['wave', l.uses.includes('release') ? 'Suitable for emotional processing' : 'Not set up for emotional processing', l.uses.includes('release')],
+];
 function Listing({ l, saved, onSave, onBack, onBook, toast }) {
   const rv = reviewsFor(l);
   const cats = [['Quietness', 0.03], ['Cleanliness', -0.01], ['Accuracy', 0.02], ['Check-in', 0.0], ['Felt safe', 0.03], ['Value', -0.04]]
@@ -29,12 +39,13 @@ function Listing({ l, saved, onSave, onBack, onBook, toast }) {
       <div class="detail-head">
         <h1>${l.title}</h1>
         <p class="sub">${TYPE[l.type].label} in ${l.hood}, Lexington · ${l.mi} mi away</p>
-        <p class="sub tnum" style=${{ marginTop: '4px' }}>Up to ${l.cap} ${l.cap > 1 ? 'people' : 'person'} · ${SOUND[l.sound].label} · ${l.instant ? 'Instant book' : 'Host approves requests'}</p>
+        <p class="sub tnum" style=${{ marginTop: '4px' }}>${PRIVACY[l.privacy].short} · up to ${l.cap} ${l.cap > 1 ? 'people' : 'person'} · ${SETTING[l.setting]}</p>
         <div class="fav-row"><span class="lbl">${l.rating >= 4.95 ? 'Guest favorite' : 'Loved by guests'}<br /><span class="muted" style=${{ fontWeight: 500, fontSize: '12px' }}>One of the calmest spaces on Quiet Space</span></span>
           <span class="num"><b class="tnum">${l.rating.toFixed(2)}</b><span>rating</span></span><span class="num"><b class="tnum">${l.reviews}</b><span>reviews</span></span></div>
       </div>
       <div class="section"><div class="host-row"><span class="avatar" style=${{ background: l.host.color }}>${initials(l.host.name)}</span>
-        <span><b>Hosted by ${l.host.name}</b><span>Host since ${l.host.since} · Replies ${l.host.reply}</span></span></div></div>
+        <span style=${{ flex: 1 }}><b>Hosted by ${l.host.name}</b><span>Host since ${l.host.since} · Replies ${l.host.reply}</span></span>
+        <span class="stars tnum" style=${{ fontSize: '13px' }}><${Icon} n="star" fill=${true} />${l.hostRating.toFixed(2)}</span></div></div>
 
       <div class="section"><h2>How quiet is it?</h2>
         <div class="qbig"><b class="tnum">${l.db}</b><span class="muted">dB ambient, measured by the host</span></div>
@@ -48,8 +59,11 @@ function Listing({ l, saved, onSave, onBack, onBook, toast }) {
       <div class="section"><h2>About this space</h2><p class="prose">${l.blurb}</p></div>
       <div class="section"><h2>What this space offers</h2>
         <div class="amen">${l.amen.map(a => html`<div key=${a}><${Icon} n=${AMEN[a][1]} />${AMEN[a][0]}</div>`)}</div></div>
-      <div class="section"><h2>House guidelines</h2>
-        <div class="rules">${l.rules.map((r, i) => html`<div key=${i}><${Icon} n="check" cls="sm" />${r}</div>`)}</div></div>
+      <div class="section"><h2>Set by ${l.host.name}</h2>
+        <div class="hs">${hostSet(l).map(([i, t, ok]) => html`<div class="hs-row" key=${t}><${Icon} n=${i} /><span>${t}</span>${ok != null && html`<span class=${'yn ' + (ok ? 'y' : 'n')} aria-label=${ok ? 'Yes' : 'No'}><${Icon} n=${ok ? 'check' : 'x'} cls="sm" /></span>`}</div>`)}</div>
+        <h3 class="subh">House rules</h3>
+        <div class="rules">${l.rules.map((r, i) => html`<div key=${i}><${Icon} n="check" cls="sm" />${r}</div>`)}</div>
+        <h3 class="subh">Other restrictions</h3><p class="prose">${l.restrict}</p></div>
       <div class="section"><h2>Where you'll be</h2>
         <div class="minimap"><svg viewBox=${`${l.x - 80} ${l.y - 45} 160 90`} preserveAspectRatio="xMidYMid slice" style=${{ width: '100%', height: '100%' }}>
           <${MapBase} /><circle cx=${l.x} cy=${l.y} r="16" class="m-area" /></svg></div>
@@ -71,9 +85,9 @@ function Listing({ l, saved, onSave, onBack, onBook, toast }) {
 
 /* ---------------- booking sheet ---------------- */
 function BookingSheet({ l, onClose, onContinue }) {
-  const firstDay = HOURS.some(h => slotOk(l, 0, h, 1)) ? 0 : 1;
+  const firstDay = Math.max(0, [0, 1, 2, 3, 4, 5, 6].findIndex(d => HOURS.some(h => slotOk(l, d, h, l.minH))));
   const [day, setDay] = useState(firstDay);
-  const [dur, setDur] = useState(1);
+  const [dur, setDur] = useState(l.minH);
   const [h, setH] = useState(null);
   const [guests, setGuests] = useState(1);
   const p = priceFor(l, dur);
@@ -86,10 +100,12 @@ function BookingSheet({ l, onClose, onContinue }) {
         <div class="f-sec"><h3 style=${{ marginBottom: '12px' }}>Day</h3>
           <div class="days">${[0, 1, 2, 3, 4, 5, 6].map(i => { const d = dayAt(i);
             return html`<button key=${i} class=${'day' + (day === i ? ' on' : '')} onClick=${() => setDay(i)}><span>${i === 0 ? 'Today' : d.toLocaleDateString('en-US', { weekday: 'short' })}</span><b>${d.getDate()}</b></button>`; })}</div></div>
-        <div class="f-sec"><h3 style=${{ marginBottom: '12px' }}>How long?</h3>
-          <div class="wrap">${[1, 2, 3].map(n => html`<button key=${n} class=${'chip' + (dur === n ? ' on' : '')} onClick=${() => setDur(n)}>${n} hour${n > 1 ? 's' : ''}</button>`)}</div></div>
+        <div class="f-sec"><h3>How long?</h3><p class="hint">${l.host.name} allows ${lengthLabel(l)}.</p>
+          <div class="wrap">${Array.from({ length: l.maxH - l.minH + 1 }, (_, i) => l.minH + i).map(n => html`<button key=${n} class=${'chip' + (dur === n ? ' on' : '')} onClick=${() => setDur(n)}>${n} hour${n > 1 ? 's' : ''}</button>`)}</div></div>
         <div class="f-sec"><div class="spread" style=${{ marginBottom: '12px' }}><h3 style=${{ margin: 0 }}>Start time</h3><span class="muted" style=${{ fontSize: '13px' }}>${fmtDay(dayAt(day))}</span></div>
-          <div class="slots">${HOURS.map(x => html`<button key=${x} class=${'slot' + (h === x ? ' on' : '')} disabled=${!slotOk(l, day, x, dur)} onClick=${() => setH(x)}>${fmtHour(x)}</button>`)}</div></div>
+          ${HOURS.some(x => slotOk(l, day, x, dur))
+            ? html`<div class="slots">${HOURS.filter(x => x >= l.open[0] && x < l.open[1]).map(x => html`<button key=${x} class=${'slot' + (h === x ? ' on' : '')} disabled=${!slotOk(l, day, x, dur)} onClick=${() => setH(x)}>${fmtHour(x)}</button>`)}</div>`
+            : html`<p class="muted" style=${{ fontSize: '14px' }}>No open times this day. ${l.host.name}'s hours: ${hoursLabel(l)}.</p>`}</div>
         <div class="f-sec"><div class="spread"><div><h3>People</h3><p class="hint" style=${{ margin: 0 }}>This space fits up to ${l.cap}</p></div>
           <div class="stepper"><button disabled=${guests <= 1} onClick=${() => setGuests(guests - 1)} aria-label="Fewer"><${Icon} n="minus" cls="sm" /></button><b>${guests}</b><button disabled=${guests >= l.cap} onClick=${() => setGuests(guests + 1)} aria-label="More"><${Icon} n="plus" cls="sm" /></button></div></div></div>
         <div class="f-sec" style=${{ borderBottom: 0 }}><div class="lines">

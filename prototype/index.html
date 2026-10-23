@@ -6,38 +6,39 @@
 /* Layout: one phone-sized app. Framed as a device beside a notes column on desktop, full-bleed on phones. */
 :root{
   --a-l:#3D6B58; --a-d:#93C4AC;
-  --stage:#E3E7E1; --stage-ink:#26302B; --stage-ink-2:#5E6A64; --stage-line:#CDD4CC;
+  --stage:#E4E0D7; --stage-ink:#2A2925; --stage-ink-2:#67635A; --stage-line:#D2CDC2;
   --font-display:"Young Serif", Georgia, "Times New Roman", serif;
   --font-body:"Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --stage:#0B0E0D; --stage-ink:#E2E8E4; --stage-ink-2:#8F9C96; --stage-line:#252D29; color-scheme:dark } }
-:root[data-theme="dark"]{ --stage:#0B0E0D; --stage-ink:#E2E8E4; --stage-ink-2:#8F9C96; --stage-line:#252D29; color-scheme:dark }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --stage:#0F0E0C; --stage-ink:#ECE8E0; --stage-ink-2:#9C9688; --stage-line:#2A2723; color-scheme:dark } }
+:root[data-theme="dark"]{ --stage:#0F0E0C; --stage-ink:#ECE8E0; --stage-ink-2:#9C9688; --stage-line:#2A2723; color-scheme:dark }
 
 .app{
-  --bg:#F4F6F2; --surface:#FFFFFF; --surface-2:#ECF0EA; --ink:#1B2420; --ink-2:#56625D; --ink-3:#86918B; --line:#DCE2DB;
+  --bg:#F3F1EC; --surface:#FCFBF8; --surface-2:#ECE8E0; --ink:#2A2925; --ink-2:#67635A; --ink-3:#979284; --line:#DFDAD0;
   --on-accent:#FFFFFF; --good:#2F7A57; --warn:#9A5B17; --pin:#FFFFFF; --pin-ink:#1B2420;
-  --map-land:#E6EBE3; --map-road:#FFFFFF; --map-major:#EFD7A4; --map-park:#CDE1C9; --map-water:#C9DCE6; --map-label:#6A7670;
+  --map-land:#ECE8E0; --map-road:#FBFAF6; --map-major:#EAD7BF; --map-park:#D3D9CB; --map-water:#CDD7D3; --map-label:#7A7568;
   --shadow:0 1px 2px rgba(20,30,25,.06), 0 10px 28px rgba(20,30,25,.10);
   --scrim:rgba(14,20,17,.42);
   --accent:var(--a-l);
   --accent-soft:color-mix(in srgb, var(--accent) 12%, var(--surface));
   --accent-line:color-mix(in srgb, var(--accent) 38%, var(--surface));
 }
-[data-palette="dusk"]{ --a-l:#46598F; --a-d:#AAB7EA }
-[data-palette="plum"]{ --a-l:#7A4870; --a-d:#DDAED3 }
+[data-palette="soft"]{ --a-l:#5F6F5C; --a-d:#B4C2AE }
+[data-palette="clay"]{ --a-l:#8A6A52; --a-d:#D6BBA3 }
+[data-palette="stone"]{ --a-l:#66614F; --a-d:#C4BEAD }
 .notes{ --accent:var(--a-l); --on-accent:#FFFFFF; --line:var(--stage-line); --ink:var(--stage-ink); --ink-2:var(--stage-ink-2); --surface:transparent }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .notes{ --accent:var(--a-d); --on-accent:#0E1311 } }
 :root[data-theme="dark"] .notes{ --accent:var(--a-d); --on-accent:#0E1311 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .app{
-  --bg:#101412; --surface:#181E1B; --surface-2:#212925; --ink:#E5EBE7; --ink-2:#A0ACA6; --ink-3:#6F7B75; --line:#2B3430;
+  --bg:#151412; --surface:#1E1C19; --surface-2:#292622; --ink:#ECE8E0; --ink-2:#ADA799; --ink-3:#787366; --line:#332F2A;
   --on-accent:#0E1311; --good:#74CC9E; --warn:#E3A55C; --pin:#222A26; --pin-ink:#E5EBE7;
-  --map-land:#161C19; --map-road:#27302B; --map-major:#4B4330; --map-park:#1C2F23; --map-water:#1A2B33; --map-label:#7D8A84;
+  --map-land:#1B1916; --map-road:#2C2924; --map-major:#4A4134; --map-park:#262B22; --map-water:#1E2828; --map-label:#878174;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.4); --scrim:rgba(0,0,0,.6);
   --accent:var(--a-d); color-scheme:dark } }
 :root[data-theme="dark"] .app{
-  --bg:#101412; --surface:#181E1B; --surface-2:#212925; --ink:#E5EBE7; --ink-2:#A0ACA6; --ink-3:#6F7B75; --line:#2B3430;
+  --bg:#151412; --surface:#1E1C19; --surface-2:#292622; --ink:#ECE8E0; --ink-2:#ADA799; --ink-3:#787366; --line:#332F2A;
   --on-accent:#0E1311; --good:#74CC9E; --warn:#E3A55C; --pin:#222A26; --pin-ink:#E5EBE7;
-  --map-land:#161C19; --map-road:#27302B; --map-major:#4B4330; --map-park:#1C2F23; --map-water:#1A2B33; --map-label:#7D8A84;
+  --map-land:#1B1916; --map-road:#2C2924; --map-major:#4A4134; --map-park:#262B22; --map-water:#1E2828; --map-label:#878174;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.4); --scrim:rgba(0,0,0,.6);
   --accent:var(--a-d); color-scheme:dark }
 
@@ -51,7 +52,8 @@ h1,h2,h3,p{margin:0}
 h1,h2{text-wrap:balance}
 
 /* ---------- stage + device ---------- */
-.stage{height:100%;overflow:auto;display:flex;align-items:center;justify-content:center;gap:64px;padding:20px 16px}
+.stage{height:100%;overflow:auto;display:flex;align-items:flex-start;justify-content:center;gap:64px;padding:20px 16px}
+.stage > *{margin-block:auto}
 .device{position:relative;flex-shrink:0;width:390px;height:min(844px,100%);min-height:600px;border-radius:48px;border:10px solid #0E100F;box-shadow:0 30px 80px rgba(10,20,15,.28),0 0 0 1px var(--stage-line);overflow:hidden;background:var(--bg);color:var(--ink)}
 .notes{width:340px;flex-shrink:1;min-width:0;display:none}
 @media (min-width:1000px){ .notes{display:block} }
@@ -375,7 +377,7 @@ textarea.input:focus{outline:none;border-color:var(--accent)}
 .menu button{display:flex;align-items:center;gap:14px;width:100%;padding:15px 16px;font-size:15px;text-align:left;border-top:1px solid var(--line)}
 .menu button:first-child{border-top:0}
 .menu button .ic:last-child{margin-left:auto;color:var(--ink-3)}
-.palettes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.palettes{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
 .pal{padding:10px;border-radius:14px;border:1.5px solid var(--line);display:grid;gap:8px;text-align:left;font-size:13px;font-weight:600}
 .pal.on{border-color:var(--ink)}
 .pal .sw{display:flex;height:28px;border-radius:8px;overflow:hidden}
@@ -408,6 +410,20 @@ textarea.input:focus{outline:none;border-color:var(--accent)}
 .try li{display:flex;gap:12px;font-size:14.5px;line-height:1.45}
 .try li .ic{color:var(--accent);margin-top:1px}
 
+/* ---------- v2: host-set details + host settings ---------- */
+.hs{display:grid}
+.hs-row{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);font-size:15px;line-height:1.35}
+.hs-row:last-child{border-bottom:0}
+.hs-row > span:not(.yn){flex:1;min-width:0}
+.yn{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;flex-shrink:0}
+.yn.y{background:var(--accent-soft);color:var(--accent)}
+.yn.n{background:var(--surface-2);color:var(--ink-3)}
+.subh{font-size:15px;font-weight:700;margin:22px 0 10px}
+.set-block{padding:12px 0;border-bottom:1px solid var(--line)}
+.dchips{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.dchip{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--line);font-weight:600;font-size:13px}
+.dchip.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+
 @media (prefers-reduced-motion: reduce){ *,*::before,*::after{animation:none!important;transition:none!important} }
 </style>
 
@@ -423,7 +439,7 @@ const html = htm.bind(React.createElement);
 const USES = [
   { id: 'rest', label: 'Rest & nap', icon: 'moon' },
   { id: 'meditate', label: 'Meditation', icon: 'leaf' },
-  { id: 'release', label: 'Emotional release', icon: 'wave' },
+  { id: 'release', label: 'Emotional processing', icon: 'wave' },
   { id: 'prayer', label: 'Prayer', icon: 'sun' },
   { id: 'journal', label: 'Read & journal', icon: 'pen' },
   { id: 'breath', label: 'Breathwork', icon: 'wind' },
@@ -587,6 +603,32 @@ const fmtPrice = (p) => p === 0 ? 'Free' : '$' + p;
 const money = (n) => '$' + n.toFixed(2);
 const initials = (n) => n.replace('Rev. ', '').slice(0, 1);
 
+/* ---------------- host-set details (Cassie's list, Oct 21) ---------------- */
+const PRIVACY = {
+  entire: { label: 'Entire space to yourself', short: 'Entire space', note: 'Nobody else is in the space while you are there.' },
+  room: { label: 'Private room', short: 'Private room', note: 'The room is yours. Others may be elsewhere in the building.' },
+  shared: { label: 'Shared quiet space', short: 'Shared', note: 'Others may be there too, keeping the same quiet.' },
+};
+const SETTING = { indoor: 'Indoor only', both: 'Indoor, with outdoor access', outdoor: 'Outdoor space' };
+const EXTRA = {
+  1: { setting: 'both', privacy: 'entire', kids: true, food: true, minH: 1, maxH: 3, open: [8, 20], hostRating: 4.98, restrict: 'No candles or incense' },
+  2: { setting: 'indoor', privacy: 'room', kids: false, food: false, minH: 1, maxH: 2, open: [17, 21], hostRating: 4.9, restrict: 'Water only in the studio' },
+  3: { setting: 'indoor', privacy: 'room', kids: false, food: false, minH: 1, maxH: 3, open: [9, 21], hostRating: 4.9, restrict: 'Scent-free: no perfume or essential oils' },
+  4: { setting: 'indoor', privacy: 'shared', kids: true, food: false, minH: 1, maxH: 3, open: [8, 11], wk: true, hostRating: 4.96, restrict: 'Keep to the loft during services' },
+  5: { setting: 'both', privacy: 'entire', kids: false, food: true, minH: 1, maxH: 4, open: [8, 21], hostRating: 5.0, restrict: 'No smoking anywhere in the garden' },
+  6: { setting: 'indoor', privacy: 'room', kids: false, food: false, minH: 1, maxH: 2, open: [8, 21], hostRating: 4.85, restrict: 'One guest at a time' },
+  7: { setting: 'indoor', privacy: 'room', kids: true, food: true, minH: 1, maxH: 3, open: [9, 18], hostRating: 4.93, restrict: 'Please handle the old books gently' },
+  8: { setting: 'indoor', privacy: 'entire', kids: true, food: false, minH: 1, maxH: 3, open: [10, 21], hostRating: 4.94, restrict: 'No food in the recording room' },
+  9: { setting: 'outdoor', privacy: 'entire', kids: true, food: true, minH: 2, maxH: 4, open: [8, 20], hostRating: 5.0, restrict: 'Do not feed or approach the horses' },
+  10: { setting: 'indoor', privacy: 'room', kids: false, food: false, minH: 1, maxH: 1, open: [11, 15], wk: true, hostRating: 4.81, restrict: 'Check in at the front desk tablet' },
+  11: { setting: 'both', privacy: 'entire', kids: true, food: true, minH: 1, maxH: 3, open: [8, 20], hostRating: 4.97, restrict: 'Children must be with an adult on the ladder' },
+  12: { setting: 'indoor', privacy: 'shared', kids: true, food: true, minH: 1, maxH: 2, open: [9, 18], hostRating: 4.9, restrict: 'Maximum 2 hours per visit' },
+};
+LISTINGS.forEach(l => Object.assign(l, EXTRA[l.id]));
+const fmtH = (h) => `${((h + 11) % 12) + 1} ${h < 12 ? 'AM' : 'PM'}`;
+const hoursLabel = (l) => `${l.wk ? 'Weekdays' : 'Every day'}, ${fmtH(l.open[0])} to ${fmtH(l.open[1])}`;
+const lengthLabel = (l) => l.minH === l.maxH ? `${l.minH} hour${l.minH > 1 ? 's' : ''} per visit` : `${l.minH} to ${l.maxH} hours per visit`;
+
 /* ---------------- illustrated "photos" of each space ---------------- */
 function Art({ a }) {
   const g = 'a' + useId().replace(/[^a-zA-Z0-9]/g, '');
@@ -713,13 +755,26 @@ function Pin({ l, on, onClick }) {
   </g>`;
 }
 
-/* ---------------- filters ---------------- */
-const DEFAULT_F = { guests: 1, uses: [], sound: 'any', types: [], maxPrice: 40, freeOnly: false, dist: 25, amen: [], instant: false, now: false };
+/* ---------------- filters (Cassie's guest search list, Oct 21) ---------------- */
+const HOOD_LIST = [...new Set(LISTINGS.map(l => l.hood))].sort();
+const WHEN = [['any', 'Any time'], ['now', 'Right now'], ['today', 'Today'], ['tomorrow', 'Tomorrow'], ['weekend', 'This weekend']];
+const DEFAULT_F = { hoods: [], dist: 25, when: 'any', adults: 1, kids: 0, uses: [], quiet: 'any', types: [], setting: 'any', privacy: 'any',
+  maxPrice: 40, freeOnly: false, amen: [], rGuest: 0, rHost: 0, instant: false };
+const weekendDays = () => [0, 1, 2, 3, 4, 5, 6].filter(i => [0, 6].includes(dayAt(i).getDay()));
+const openOn = (l, days) => days.some(d => HOURS.some(h => slotOk(l, d, h, l.minH)));
 const applyFilters = (f) => LISTINGS.filter(l =>
-  l.cap >= f.guests && f.uses.every(u => l.uses.includes(u)) && (f.sound === 'any' || l.sound === f.sound) &&
-  (!f.types.length || f.types.includes(l.type)) && l.price <= f.maxPrice && (!f.freeOnly || l.price === 0) &&
-  l.mi <= f.dist && f.amen.every(a => l.amen.includes(a)) && (!f.instant || l.instant) && (!f.now || l.now));
-const countActive = (f) => (f.guests > 1) + f.uses.length + (f.sound !== 'any') + f.types.length + (f.maxPrice < 40) + f.freeOnly + (f.dist < 25) + f.amen.length + f.instant + f.now;
+  (!f.hoods.length || f.hoods.includes(l.hood)) && l.mi <= f.dist &&
+  (f.when === 'any' || (f.when === 'now' ? l.now : openOn(l, f.when === 'today' ? [0] : f.when === 'tomorrow' ? [1] : weekendDays()))) &&
+  l.cap >= f.adults + f.kids && (!f.kids || l.kids) &&
+  f.uses.every(u => l.uses.includes(u)) &&
+  (f.quiet === 'any' || l.db <= (f.quiet === 'very' ? 25 : 30)) &&
+  (!f.types.length || f.types.includes(l.type)) &&
+  (f.setting === 'any' || (f.setting === 'indoor' ? l.setting !== 'outdoor' : l.setting !== 'indoor')) &&
+  (f.privacy === 'any' || (f.privacy === 'entire' ? l.privacy === 'entire' : l.privacy !== 'shared')) &&
+  l.price <= f.maxPrice && (!f.freeOnly || l.price === 0) &&
+  f.amen.every(a => l.amen.includes(a)) && l.rating >= f.rGuest && l.hostRating >= f.rHost && (!f.instant || l.instant));
+const countActive = (f) => f.hoods.length + (f.dist < 25) + (f.when !== 'any') + (f.adults > 1) + (f.kids > 0) + f.uses.length + (f.quiet !== 'any') +
+  f.types.length + (f.setting !== 'any') + (f.privacy !== 'any') + (f.maxPrice < 40) + f.freeOnly + f.amen.length + (f.rGuest > 0) + (f.rHost > 0) + f.instant;
 const toggleIn = (arr, v) => arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v];
 
 function ListingCard({ l, saved, onSave, onOpen }) {
@@ -733,7 +788,7 @@ function ListingCard({ l, saved, onSave, onOpen }) {
     <button class="card-body" style=${{ width: '100%', textAlign: 'left' }} onClick=${onOpen}>
       <div class="spread" style=${{ alignItems: 'flex-start' }}><h3>${l.title}</h3><span class="stars tnum"><${Icon} n="star" fill=${true} />${l.rating.toFixed(2)}</span></div>
       <p class="meta">${TYPE[l.type].label} · ${l.hood} · ${l.mi} mi</p>
-      <p class="meta tnum">Up to ${l.cap} ${l.cap > 1 ? 'people' : 'person'} · ${l.db} dB ambient</p>
+      <p class="meta tnum">${PRIVACY[l.privacy].short} · ${l.db} dB · ${l.kids ? 'Kids welcome' : 'Adults only'}</p>
       <p class="price tnum">${l.price === 0 ? html`<b>Free</b> · donations welcome` : html`<b>$${l.price}</b> / hour`}</p>
     </button>
   </article>`;
@@ -741,9 +796,11 @@ function ListingCard({ l, saved, onSave, onOpen }) {
 
 function SearchPill({ f, onOpen }) {
   const n = countActive(f);
+  const where = f.hoods.length === 0 ? 'Lexington' : f.hoods.length === 1 ? f.hoods[0] : `${f.hoods.length} neighborhoods`;
+  const people = f.adults + f.kids;
   return html`<button class="search" onClick=${onOpen}>
     <${Icon} n="search" />
-    <span class="q"><b>Where do you need quiet?</b><span>Lexington · Today · ${f.guests} ${f.guests > 1 ? 'people' : 'guest'}${f.dist < 25 ? ` · within ${f.dist} mi` : ''}</span></span>
+    <span class="q"><b>Where do you need quiet?</b><span>${where} · ${WHEN.find(w => w[0] === f.when)[1]} · ${people} ${people > 1 ? 'people' : 'guest'}</span></span>
     <span class="filter-btn"><${Icon} n="sliders" cls="sm" />${n > 0 && html`<span class="count">${n}</span>`}</span>
   </button>`;
 }
@@ -773,7 +830,7 @@ function Explore({ f, setF, openFilters, openListing, saved, toggleSave, mode, s
       ${s ? html`<button class="map-card" onClick=${() => openListing(s.id)}>
           <div class="thumb"><${Art} a=${s.art} /></div>
           <div class="body"><span class="stars tnum" style=${{ fontSize: '13px' }}><${Icon} n="star" fill=${true} />${s.rating.toFixed(2)} (${s.reviews})</span>
-            <h3>${s.title}</h3><p class="muted" style=${{ fontSize: '13.5px' }}>${SOUND[s.sound].short} · up to ${s.cap} · ${s.mi} mi</p>
+            <h3>${s.title}</h3><p class="muted" style=${{ fontSize: '13.5px' }}>${PRIVACY[s.privacy].short} · up to ${s.cap} · ${s.mi} mi</p>
             <p class="tnum" style=${{ fontSize: '14.5px' }}>${s.price === 0 ? html`<b>Free</b>` : html`<b>$${s.price}</b> / hour`}</p></div>
         </button>`
         : html`<div class="map-card" style=${{ justifyContent: 'center', padding: '14px', fontSize: '14px' }}><span class="muted">${list.length} quiet spaces in Lexington · tap a price to preview</span></div>`}
@@ -783,12 +840,12 @@ function Explore({ f, setF, openFilters, openListing, saved, toggleSave, mode, s
 
   return html`<div class="screen fade" onScroll=${(e) => setScrolled(e.currentTarget.scrollTop > 4)}>
     <header class=${'ex-head' + (scrolled ? ' shadowed' : '')}>
-      <div class="ex-top"><span class="wordmark"><${Logo} />quiet space</span><span class="proto-pill">PROTOTYPE</span></div>
+      <div class="ex-top"><span class="wordmark"><${Logo} />quiet space</span><span class="proto-pill">PROTOTYPE v2</span></div>
       <${SearchPill} f=${f} onOpen=${openFilters} />
       ${chips}
     </header>
     <div class="list-meta"><span class="tnum">${list.length} ${list.length === 1 ? 'space' : 'spaces'} near you</span>
-      <button class="row" style=${{ gap: '8px', fontWeight: 600, color: 'var(--ink)' }} onClick=${() => setF({ ...f, now: !f.now })}>Open right now <span class=${'switch' + (f.now ? ' on' : '')} style=${{ transform: 'scale(.8)' }}></span></button>
+      <button class="row" style=${{ gap: '8px', fontWeight: 600, color: 'var(--ink)' }} onClick=${() => setF({ ...f, when: f.when === 'now' ? 'any' : 'now' })}>Open right now <span class=${'switch' + (f.when === 'now' ? ' on' : '')} style=${{ transform: 'scale(.8)' }}></span></button>
     </div>
     ${list.length === 0
       ? html`<div class="empty"><${Icon} n="search" cls="lg" /><h3>No spaces match all of that yet</h3><p>Try removing a filter or two. More hosts are joining in Lexington every week.</p><button class="btn sm" onClick=${() => setF(DEFAULT_F)}>Clear filters</button></div>`
@@ -802,42 +859,61 @@ function Toggle({ on, onClick, label, sub }) {
   return html`<button class="switch-row" style=${{ width: '100%', textAlign: 'left' }} onClick=${onClick} role="switch" aria-checked=${on}>
     <span><b>${label}</b>${sub && html`<span>${sub}</span>`}</span><span class=${'switch' + (on ? ' on' : '')}></span></button>`;
 }
+function Choice({ opts, val, set }) {
+  return html`<div class="wrap">${opts.map(([k, label]) => html`<button key=${k} class=${'chip' + (val === k ? ' on' : '')} onClick=${() => set(k)} aria-pressed=${val === k}>${label}</button>`)}</div>`;
+}
+function Stepper({ label, sub, val, min, max, set }) {
+  return html`<div class="spread" style=${{ padding: '6px 0' }}><div><b style=${{ fontSize: '15px' }}>${label}</b><p class="muted" style=${{ fontSize: '13px', marginTop: '2px' }}>${sub}</p></div>
+    <div class="stepper"><button disabled=${val <= min} onClick=${() => set(val - 1)} aria-label=${'Fewer ' + label}><${Icon} n="minus" cls="sm" /></button><b>${val}</b><button disabled=${val >= max} onClick=${() => set(val + 1)} aria-label=${'More ' + label}><${Icon} n="plus" cls="sm" /></button></div></div>`;
+}
 function FiltersSheet({ f, setF, onClose }) {
   const [d, setD] = useState(f);
   const n = applyFilters(d).length;
   const buckets = [0, 5, 10, 15, 20, 25, 30, 35].map(b => LISTINGS.filter(l => (b === 0 ? l.price < 5 : l.price >= b && l.price < b + 5)).length);
   const maxB = Math.max(...buckets);
   const set = (k, v) => setD({ ...d, [k]: v });
+  const RATINGS = [[0, 'Any'], [4.8, '4.8 and up'], [4.9, '4.9 and up']];
   return html`<${Fragment}>
     <div class="scrim" onClick=${onClose}></div>
     <div class="sheet" role="dialog" aria-label="Filters">
       <div class="sheet-head"><button class="iconbtn" style=${{ boxShadow: 'none' }} onClick=${onClose} aria-label="Close"><${Icon} n="x" /></button><h2>Filters</h2><span></span></div>
       <div class="sheet-body">
-        <div class="f-sec"><div class="spread"><div><h3>Who's coming</h3><p class="hint" style=${{ margin: 0 }}>Most spaces are made for 1 to 3 people</p></div>
-          <div class="stepper"><button disabled=${d.guests <= 1} onClick=${() => set('guests', d.guests - 1)} aria-label="Fewer"><${Icon} n="minus" cls="sm" /></button><b>${d.guests}</b><button disabled=${d.guests >= 4} onClick=${() => set('guests', d.guests + 1)} aria-label="More"><${Icon} n="plus" cls="sm" /></button></div></div></div>
-        <div class="f-sec"><h3>What's it for?</h3><p class="hint">Hosts choose what their space can be used for.</p>
+        <div class="f-sec"><h3>Location</h3><p class="hint">Lexington, KY. Pick neighborhoods or stay close to you.</p>
+          <div class="wrap"><button class=${'chip' + (d.hoods.length === 0 ? ' on' : '')} onClick=${() => set('hoods', [])}><${Icon} n="pin" cls="sm" />Anywhere</button>
+            ${HOOD_LIST.map(h => html`<button key=${h} class=${'chip' + (d.hoods.includes(h) ? ' on' : '')} onClick=${() => set('hoods', toggleIn(d.hoods, h))}>${h}</button>`)}</div>
+          <div class="spread" style=${{ marginTop: '18px' }}><b style=${{ fontSize: '15px' }}>Distance from you</b><b class="tnum">${d.dist >= 25 ? 'Any distance' : 'Within ' + d.dist + ' mi'}</b></div>
+          <input id="dist" type="range" min="1" max="25" step="1" value=${d.dist} onChange=${(e) => set('dist', +e.target.value)} aria-label="Maximum distance in miles" /></div>
+        <div class="f-sec"><h3>Availability</h3><p class="hint">Each host sets their own open hours.</p>
+          <${Choice} opts=${WHEN} val=${d.when} set=${(v) => set('when', v)} /></div>
+        <div class="f-sec"><h3>Who's coming</h3><p class="hint" style=${{ marginBottom: '6px' }}>Most spaces are made for 1 to 3 people.</p>
+          <${Stepper} label="Adults" sub="Ages 13 and up" val=${d.adults} min=${1} max=${4 - d.kids} set=${(v) => set('adults', v)} />
+          <${Stepper} label="Children" sub="Only spaces where the host allows children" val=${d.kids} min=${0} max=${4 - d.adults} set=${(v) => set('kids', v)} /></div>
+        <div class="f-sec"><h3>Intended use</h3><p class="hint">Hosts choose what their space can be used for.</p>
           <div class="wrap">${USES.map(u => html`<button key=${u.id} class=${'chip' + (d.uses.includes(u.id) ? ' on' : '')} onClick=${() => set('uses', toggleIn(d.uses, u.id))}><${Icon} n=${u.icon} cls="sm" />${u.label}</button>`)}</div></div>
-        <div class="f-sec"><h3>How much sound?</h3><p class="hint">Need to be loud, or need it silent? Match with the right host.</p>
-          <div class="sound-opts">
-            <button class=${'sound-opt' + (d.sound === 'any' ? ' on' : '')} onClick=${() => set('sound', 'any')}><${Icon} n="grid" /><span><b>Any</b><span>Show every space</span></span></button>
-            ${Object.entries(SOUND).map(([k, s]) => html`<button key=${k} class=${'sound-opt' + (d.sound === k ? ' on' : '')} onClick=${() => set('sound', k)}><${Icon} n=${s.icon} /><span><b>${s.label}</b><span>${s.note}</span></span></button>`)}
-          </div></div>
+        <div class="f-sec"><h3>Quietness</h3><p class="hint">Every host measures their space. 30 dB is about a whisper.</p>
+          <${Choice} opts=${[['any', 'Any'], ['quiet', 'Quiet · under 30 dB'], ['very', 'Very quiet · under 25 dB']]} val=${d.quiet} set=${(v) => set('quiet', v)} /></div>
+        <div class="f-sec"><h3>Privacy</h3><p class="hint">How much of the space is yours.</p>
+          <div class="sound-opts">${[['any', 'Any', 'Show every space', 'grid'], ['private', 'Private room or better', 'Your own room. Others may be in the building.', 'lock'], ['entire', 'Entire space only', 'Nobody else there while you are.', 'key']].map(([k, t, s, i]) => html`
+            <button key=${k} class=${'sound-opt' + (d.privacy === k ? ' on' : '')} onClick=${() => set('privacy', k)}><${Icon} n=${i} /><span><b>${t}</b><span>${s}</span></span></button>`)}</div></div>
         <div class="f-sec"><h3>Type of space</h3><p class="hint">Where it is and what it looks like.</p>
           <div class="type-grid">${TYPES.map(t => { const ex = LISTINGS.find(l => l.type === t.id);
             return html`<button key=${t.id} class=${'type-tile' + (d.types.includes(t.id) ? ' on' : '')} onClick=${() => set('types', toggleIn(d.types, t.id))}><div class="sw"><${Art} a=${ex.art} /></div>${t.label}</button>`; })}</div></div>
+        <div class="f-sec"><h3>Indoor or outdoor</h3><p class="hint">Porches, gardens and decks count as outdoor access.</p>
+          <${Choice} opts=${[['any', 'Either'], ['indoor', 'Indoor'], ['outdoor', 'Outdoor access']]} val=${d.setting} set=${(v) => set('setting', v)} /></div>
         <div class="f-sec"><div class="spread"><h3>Price per hour</h3><b class="tnum">${d.freeOnly ? 'Free only' : d.maxPrice >= 40 ? 'Any price' : 'Up to $' + d.maxPrice}</b></div>
           <p class="hint">Most Lexington spaces are $20 to $30 an hour, and some are free.</p>
           <div class="hist">${buckets.map((c, i) => html`<i key=${i} class=${(i * 5 > d.maxPrice || (d.freeOnly && i > 0)) ? 'off' : ''} style=${{ height: (c / maxB) * 100 + '%', minHeight: c ? '6px' : '2px' }}></i>`)}</div>
           <input id="price" type="range" min="0" max="40" step="1" value=${d.maxPrice} onChange=${(e) => set('maxPrice', +e.target.value)} aria-label="Maximum price per hour" />
           <div class="spread muted tnum" style=${{ fontSize: '12.5px' }}><span>Free</span><span>$40+</span></div>
           <${Toggle} on=${d.freeOnly} onClick=${() => set('freeOnly', !d.freeOnly)} label="Free spaces only" sub="Community rooms, chapels and generous hosts" /></div>
-        <div class="f-sec"><div class="spread"><h3>Distance</h3><b class="tnum">${d.dist >= 25 ? 'Anywhere' : 'Within ' + d.dist + ' mi'}</b></div>
-          <input id="dist" type="range" min="1" max="25" step="1" value=${d.dist} onChange=${(e) => set('dist', +e.target.value)} aria-label="Maximum distance in miles" /></div>
-        <div class="f-sec"><h3>Comforts</h3>
+        <div class="f-sec"><h3>Amenities</h3>
           <div class="checks">${AMEN_FILTER.map(a => html`<button key=${a} class=${'check' + (d.amen.includes(a) ? ' on' : '')} onClick=${() => set('amen', toggleIn(d.amen, a))}>${AMEN[a][0]}<span class="box">${d.amen.includes(a) && html`<${Icon} n="check" cls="sm" />`}</span></button>`)}</div></div>
+        <div class="f-sec"><h3>Guest reviews</h3><p class="hint">How guests rated the space.</p>
+          <${Choice} opts=${RATINGS} val=${d.rGuest} set=${(v) => set('rGuest', v)} />
+          <h3 style=${{ marginTop: '20px' }}>Host reviews</h3><p class="hint">How guests rated the host.</p>
+          <${Choice} opts=${RATINGS} val=${d.rHost} set=${(v) => set('rHost', v)} /></div>
         <div class="f-sec" style=${{ borderBottom: 0 }}><h3>Booking</h3>
-          <${Toggle} on=${d.instant} onClick=${() => set('instant', !d.instant)} label="Instant book" sub="Book without waiting for the host to approve" />
-          <${Toggle} on=${d.now} onClick=${() => set('now', !d.now)} label="Open right now" sub="Spaces with a free slot in the next hour" /></div>
+          <${Toggle} on=${d.instant} onClick=${() => set('instant', !d.instant)} label="Instant book" sub="Book without waiting for the host to approve" /></div>
       </div>
       <div class="sheet-foot pad-home"><button class="link" onClick=${() => setD(DEFAULT_F)}>Clear all</button>
         <button class="btn" disabled=${n === 0} onClick=${() => { setF(d); onClose(); }}>${n === 0 ? 'No matches' : `Show ${n} ${n === 1 ? 'space' : 'spaces'}`}</button></div>
@@ -855,12 +931,22 @@ const HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 const isBooked = (l, day, h) => (l.id * 7 + day * 3 + h * 5) % 6 === 0;
 const slotOk = (l, day, h, dur) => {
   if (day === 0 && h <= new Date().getHours()) return false;
-  if (h + dur > 21) return false;
+  if (h < l.open[0] || h + dur > l.open[1]) return false;
+  if (l.wk && [0, 6].includes(dayAt(day).getDay())) return false;
   for (let k = h; k < h + dur; k++) if (isBooked(l, day, k)) return false;
   return true;
 };
 const priceFor = (l, dur) => { const base = l.price * dur; const fee = Math.round(base * 8) / 100; return { base, fee, total: base + fee }; };
 
+const hostSet = (l) => [
+  ['clock', `Open ${hoursLabel(l).replace('Every day', 'every day').replace('Weekdays', 'weekdays')}`, null],
+  ['cal', `Book ${lengthLabel(l)}`, null],
+  ['users', l.cap > 1 ? `A second person is welcome (up to ${l.cap} people)` : 'One guest at a time', l.cap > 1],
+  ['user', l.kids ? 'Children are welcome' : 'Adults only, no children', l.kids],
+  ['cup', l.food ? 'Food and drinks are fine' : 'No food or drinks', l.food],
+  ['sun', l.setting === 'indoor' ? 'No outdoor access' : l.setting === 'outdoor' ? 'This is an outdoor space' : 'Outdoor access included', l.setting !== 'indoor'],
+  ['wave', l.uses.includes('release') ? 'Suitable for emotional processing' : 'Not set up for emotional processing', l.uses.includes('release')],
+];
 function Listing({ l, saved, onSave, onBack, onBook, toast }) {
   const rv = reviewsFor(l);
   const cats = [['Quietness', 0.03], ['Cleanliness', -0.01], ['Accuracy', 0.02], ['Check-in', 0.0], ['Felt safe', 0.03], ['Value', -0.04]]
@@ -876,12 +962,13 @@ function Listing({ l, saved, onSave, onBack, onBook, toast }) {
       <div class="detail-head">
         <h1>${l.title}</h1>
         <p class="sub">${TYPE[l.type].label} in ${l.hood}, Lexington · ${l.mi} mi away</p>
-        <p class="sub tnum" style=${{ marginTop: '4px' }}>Up to ${l.cap} ${l.cap > 1 ? 'people' : 'person'} · ${SOUND[l.sound].label} · ${l.instant ? 'Instant book' : 'Host approves requests'}</p>
+        <p class="sub tnum" style=${{ marginTop: '4px' }}>${PRIVACY[l.privacy].short} · up to ${l.cap} ${l.cap > 1 ? 'people' : 'person'} · ${SETTING[l.setting]}</p>
         <div class="fav-row"><span class="lbl">${l.rating >= 4.95 ? 'Guest favorite' : 'Loved by guests'}<br /><span class="muted" style=${{ fontWeight: 500, fontSize: '12px' }}>One of the calmest spaces on Quiet Space</span></span>
           <span class="num"><b class="tnum">${l.rating.toFixed(2)}</b><span>rating</span></span><span class="num"><b class="tnum">${l.reviews}</b><span>reviews</span></span></div>
       </div>
       <div class="section"><div class="host-row"><span class="avatar" style=${{ background: l.host.color }}>${initials(l.host.name)}</span>
-        <span><b>Hosted by ${l.host.name}</b><span>Host since ${l.host.since} · Replies ${l.host.reply}</span></span></div></div>
+        <span style=${{ flex: 1 }}><b>Hosted by ${l.host.name}</b><span>Host since ${l.host.since} · Replies ${l.host.reply}</span></span>
+        <span class="stars tnum" style=${{ fontSize: '13px' }}><${Icon} n="star" fill=${true} />${l.hostRating.toFixed(2)}</span></div></div>
 
       <div class="section"><h2>How quiet is it?</h2>
         <div class="qbig"><b class="tnum">${l.db}</b><span class="muted">dB ambient, measured by the host</span></div>
@@ -895,8 +982,11 @@ function Listing({ l, saved, onSave, onBack, onBook, toast }) {
       <div class="section"><h2>About this space</h2><p class="prose">${l.blurb}</p></div>
       <div class="section"><h2>What this space offers</h2>
         <div class="amen">${l.amen.map(a => html`<div key=${a}><${Icon} n=${AMEN[a][1]} />${AMEN[a][0]}</div>`)}</div></div>
-      <div class="section"><h2>House guidelines</h2>
-        <div class="rules">${l.rules.map((r, i) => html`<div key=${i}><${Icon} n="check" cls="sm" />${r}</div>`)}</div></div>
+      <div class="section"><h2>Set by ${l.host.name}</h2>
+        <div class="hs">${hostSet(l).map(([i, t, ok]) => html`<div class="hs-row" key=${t}><${Icon} n=${i} /><span>${t}</span>${ok != null && html`<span class=${'yn ' + (ok ? 'y' : 'n')} aria-label=${ok ? 'Yes' : 'No'}><${Icon} n=${ok ? 'check' : 'x'} cls="sm" /></span>`}</div>`)}</div>
+        <h3 class="subh">House rules</h3>
+        <div class="rules">${l.rules.map((r, i) => html`<div key=${i}><${Icon} n="check" cls="sm" />${r}</div>`)}</div>
+        <h3 class="subh">Other restrictions</h3><p class="prose">${l.restrict}</p></div>
       <div class="section"><h2>Where you'll be</h2>
         <div class="minimap"><svg viewBox=${`${l.x - 80} ${l.y - 45} 160 90`} preserveAspectRatio="xMidYMid slice" style=${{ width: '100%', height: '100%' }}>
           <${MapBase} /><circle cx=${l.x} cy=${l.y} r="16" class="m-area" /></svg></div>
@@ -918,9 +1008,9 @@ function Listing({ l, saved, onSave, onBack, onBook, toast }) {
 
 /* ---------------- booking sheet ---------------- */
 function BookingSheet({ l, onClose, onContinue }) {
-  const firstDay = HOURS.some(h => slotOk(l, 0, h, 1)) ? 0 : 1;
+  const firstDay = Math.max(0, [0, 1, 2, 3, 4, 5, 6].findIndex(d => HOURS.some(h => slotOk(l, d, h, l.minH))));
   const [day, setDay] = useState(firstDay);
-  const [dur, setDur] = useState(1);
+  const [dur, setDur] = useState(l.minH);
   const [h, setH] = useState(null);
   const [guests, setGuests] = useState(1);
   const p = priceFor(l, dur);
@@ -933,10 +1023,12 @@ function BookingSheet({ l, onClose, onContinue }) {
         <div class="f-sec"><h3 style=${{ marginBottom: '12px' }}>Day</h3>
           <div class="days">${[0, 1, 2, 3, 4, 5, 6].map(i => { const d = dayAt(i);
             return html`<button key=${i} class=${'day' + (day === i ? ' on' : '')} onClick=${() => setDay(i)}><span>${i === 0 ? 'Today' : d.toLocaleDateString('en-US', { weekday: 'short' })}</span><b>${d.getDate()}</b></button>`; })}</div></div>
-        <div class="f-sec"><h3 style=${{ marginBottom: '12px' }}>How long?</h3>
-          <div class="wrap">${[1, 2, 3].map(n => html`<button key=${n} class=${'chip' + (dur === n ? ' on' : '')} onClick=${() => setDur(n)}>${n} hour${n > 1 ? 's' : ''}</button>`)}</div></div>
+        <div class="f-sec"><h3>How long?</h3><p class="hint">${l.host.name} allows ${lengthLabel(l)}.</p>
+          <div class="wrap">${Array.from({ length: l.maxH - l.minH + 1 }, (_, i) => l.minH + i).map(n => html`<button key=${n} class=${'chip' + (dur === n ? ' on' : '')} onClick=${() => setDur(n)}>${n} hour${n > 1 ? 's' : ''}</button>`)}</div></div>
         <div class="f-sec"><div class="spread" style=${{ marginBottom: '12px' }}><h3 style=${{ margin: 0 }}>Start time</h3><span class="muted" style=${{ fontSize: '13px' }}>${fmtDay(dayAt(day))}</span></div>
-          <div class="slots">${HOURS.map(x => html`<button key=${x} class=${'slot' + (h === x ? ' on' : '')} disabled=${!slotOk(l, day, x, dur)} onClick=${() => setH(x)}>${fmtHour(x)}</button>`)}</div></div>
+          ${HOURS.some(x => slotOk(l, day, x, dur))
+            ? html`<div class="slots">${HOURS.filter(x => x >= l.open[0] && x < l.open[1]).map(x => html`<button key=${x} class=${'slot' + (h === x ? ' on' : '')} disabled=${!slotOk(l, day, x, dur)} onClick=${() => setH(x)}>${fmtHour(x)}</button>`)}</div>`
+            : html`<p class="muted" style=${{ fontSize: '14px' }}>No open times this day. ${l.host.name}'s hours: ${hoursLabel(l)}.</p>`}</div>
         <div class="f-sec"><div class="spread"><div><h3>People</h3><p class="hint" style=${{ margin: 0 }}>This space fits up to ${l.cap}</p></div>
           <div class="stepper"><button disabled=${guests <= 1} onClick=${() => setGuests(guests - 1)} aria-label="Fewer"><${Icon} n="minus" cls="sm" /></button><b>${guests}</b><button disabled=${guests >= l.cap} onClick=${() => setGuests(guests + 1)} aria-label="More"><${Icon} n="plus" cls="sm" /></button></div></div></div>
         <div class="f-sec" style=${{ borderBottom: 0 }}><div class="lines">
@@ -1112,9 +1204,10 @@ function Saved({ saved, toggleSave, openListing, goExplore }) {
 
 /* ---------------- profile + host ---------------- */
 const PALETTES = [
-  { id: 'sage', name: 'A · Sage', sw: ['#3D6B58', '#93C4AC', '#F4F6F2'] },
-  { id: 'dusk', name: 'B · Dusk', sw: ['#46598F', '#AAB7EA', '#F2F3F8'] },
-  { id: 'plum', name: 'C · Plum', sw: ['#7A4870', '#DDAED3', '#F7F2F5'] },
+  { id: 'sage', name: 'A · Sage', sw: ['#3D6B58', '#BFC5B9', '#EDEAE4'] },
+  { id: 'soft', name: 'B · Soft sage', sw: ['#5F6F5C', '#BFC5B9', '#EAD7BF'] },
+  { id: 'clay', name: 'C · Clay', sw: ['#8A6A52', '#C6B09B', '#EAD7BF'] },
+  { id: 'stone', name: 'D · Stone', sw: ['#66614F', '#9F9A8A', '#EDEAE4'] },
 ];
 function PalettePicker({ palette, setPalette }) {
   return html`<div class="palettes">${PALETTES.map(p => html`<button key=${p.id} class=${'pal' + (palette === p.id ? ' on' : '')} onClick=${() => setPalette(p.id)} aria-pressed=${palette === p.id}>
@@ -1129,7 +1222,7 @@ function Profile({ palette, setPalette, openHost, toast, showWelcome }) {
     <button class="host-cta" onClick=${openHost}>
       <svg class="waves" width="170" height="170" viewBox="0 0 32 32" aria-hidden="true"><path d="M15.5 11.5a6.4 6.4 0 0 1 0 9M19.5 8.5a10.6 10.6 0 0 1 0 15M23.5 5.5a14.8 14.8 0 0 1 0 21" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" /></svg>
       <h3>Have a quiet room?</h3><p>See what hosting on Quiet Space looks like and what you could earn.</p></button>
-    <div class="panel"><h3>Brand direction</h3><p class="muted" style=${{ fontSize: '14px', marginTop: '6px', lineHeight: 1.45 }}>Three color options for the brand. Tap one and the whole app changes.</p>
+    <div class="panel"><h3>Brand direction</h3><p class="muted" style=${{ fontSize: '14px', marginTop: '6px', lineHeight: 1.45 }}>Four natural color schemes based on your palette. Tap one and the whole app changes.</p>
       <${PalettePicker} palette=${palette} setPalette=${setPalette} /></div>
     <div class="menu">${[['card', 'Payments & payouts'], ['bell', 'Notifications'], ['shield', 'Privacy & safety'], ['info', 'Help center']].map(([i, t]) => html`<button key=${t} onClick=${() => toast(t + ' is part of the full build')}><${Icon} n=${i} />${t}<${Icon} n="next" cls="sm" /></button>`)}
       <button onClick=${showWelcome}><${Icon} n="sun" />About this prototype<${Icon} n="next" cls="sm" /></button></div>
@@ -1157,6 +1250,7 @@ function Host({ onBack, toast }) {
       ${[['Measure your quiet', 'Our in-app sound check records your room\'s ambient level in decibels, so guests know exactly what to expect.'],
         ['Say what it\'s for', 'Choose the uses you\'re happy with (rest, prayer, emotional release, small circles) and how much sound is OK.'],
         ['Get booked and paid', 'Guests book by the hour. Payment is held securely and paid out to you after each visit.']].map(([t, d], i) => html`<div class="step" key=${i}><span class="n">${i + 1}</span><div><b>${t}</b><p>${d}</p></div></div>`)}</div></div>
+    <${HostSettings} rate=${rate} setRate=${setRate} />
     <div class="section"><h2>Your host dashboard</h2><p class="muted" style=${{ fontSize: '13px', marginTop: '-6px', marginBottom: '14px' }}>Preview with sample numbers</p>
       <div class="kpis"><div class="kpi"><b>3</b><span>Visits today</span></div><div class="kpi"><b>$412</b><span>This month</span></div><div class="kpi"><b>4.96</b><span>Rating</span></div></div>
       <div class="stack" style=${{ marginTop: '14px' }}>${[['Ava', '#8E7AA8', '10:00 AM', 'Rest · 1 hr', '4.9'], ['Marcus', '#5E8C7C', '1:00 PM', 'Meditate · 2 hrs', '5.0'], ['Leah', '#A86A7E', '6:00 PM', 'Shared: “Cry it out”', '4.8']].map(([n, c, t, w, r]) => html`
@@ -1167,22 +1261,49 @@ function Host({ onBack, toast }) {
   </div>`;
 }
 
+function HostSettings({ rate, setRate }) {
+  const [days, setDays] = useState([1, 2, 3, 4, 5, 6, 0]);
+  const [minH, setMinH] = useState(1);
+  const [maxH, setMaxH] = useState(3);
+  const [o, setO] = useState({ kids: true, second: true, food: false, outdoor: true, emotional: true });
+  const flip = (k) => setO({ ...o, [k]: !o[k] });
+  const D = [['M', 1], ['T', 2], ['W', 3], ['T', 4], ['F', 5], ['S', 6], ['S', 0]];
+  return html`<div class="section"><h2>Set your own rules</h2>
+    <p class="muted" style=${{ fontSize: '14px', marginTop: '-6px', lineHeight: 1.45 }}>Everything here shows on your listing and powers guests' search filters.</p>
+    <div class="set-block"><${Stepper} label="Price per hour" sub=${rate === 0 ? 'Free, donations optional' : `$${rate} an hour`} val=${rate} min=${0} max=${40} set=${setRate} /></div>
+    <div class="set-block"><b style=${{ fontSize: '15px' }}>Availability</b><p class="muted" style=${{ fontSize: '13px', marginTop: '2px' }}>Open 8 AM to 8 PM on the days you pick</p>
+      <div class="dchips">${D.map(([t, i]) => html`<button key=${i} class=${'dchip' + (days.includes(i) ? ' on' : '')} onClick=${() => setDays(toggleIn(days, i))} aria-pressed=${days.includes(i)}>${t}</button>`)}</div></div>
+    <div class="set-block"><${Stepper} label="Minimum booking" sub="Hours per visit" val=${minH} min=${1} max=${maxH} set=${setMinH} />
+      <${Stepper} label="Maximum booking" sub="Hours per visit" val=${maxH} min=${minH} max=${8} set=${setMaxH} /></div>
+    <div class="set-block">
+      <${Toggle} on=${o.second} onClick=${() => flip('second')} label="A second person is permitted" sub="Guests can bring one other person" />
+      <${Toggle} on=${o.kids} onClick=${() => flip('kids')} label="Children are permitted" sub="Shows up for guests searching with children" />
+      <${Toggle} on=${o.food} onClick=${() => flip('food')} label="Food and drinks are permitted" />
+      <${Toggle} on=${o.outdoor} onClick=${() => flip('outdoor')} label="Outdoor access included" sub="A porch, garden or deck guests can use" />
+      <${Toggle} on=${o.emotional} onClick=${() => flip('emotional')} label="Suitable for emotional processing" sub="Guests may cry, vent or make some noise" /></div>
+    <div class="set-block" style=${{ borderBottom: 0 }}><b style=${{ fontSize: '15px' }}>House rules</b>
+      <textarea id="hostrules" class="input" style=${{ marginTop: '10px' }} defaultValue=${'Shoes off at the door' + String.fromCharCode(10) + 'No phone calls inside'}></textarea>
+      <b style=${{ fontSize: '15px', display: 'block', marginTop: '14px' }}>Any other restrictions</b>
+      <textarea id="hostrestrict" class="input" style=${{ marginTop: '10px' }} defaultValue="No candles or incense"></textarea></div>
+  </div>`;
+}
+
 /* ---------------- welcome + desktop notes ---------------- */
 const TRY = [
-  ['sliders', 'Open Filters and try “Emotional release” with “Loud is welcome”.'],
+  ['sliders', 'Open Filters. Everything from your guest list is there, from Privacy and Quietness to Child accessibility.'],
+  ['check', 'Open any space to see what its host allows: children, food, outdoor access, emotional processing and more.'],
+  ['cal', 'Book a space. Times and visit lengths now follow each host’s settings.'],
+  ['home', 'See what hosts control under Profile → Have a quiet room? → Set your own rules.'],
   ['map', 'Tap Map to see spaces around Lexington.'],
-  ['cal', 'Open a space, pick a time and book it. The checkout works end to end.'],
-  ['chat', 'Message your host from the confirmation screen.'],
   ['star', 'Leave a review under Bookings → Past.'],
-  ['home', 'Peek at the host side under Profile → Have a quiet room?'],
 ];
 function Welcome({ onClose, palette, setPalette }) {
   return html`<${Fragment}><div class="scrim" onClick=${onClose}></div>
     <div class="sheet welcome" role="dialog" aria-label="Welcome">
       <div class="sheet-body">
-        <div class="row" style=${{ marginTop: '18px' }}><${Logo} size=${34} /><span class="eyebrow">Prototype for Cassie</span></div>
-        <h2>Hi Cassie, here's Quiet Space.</h2>
-        <p>We built this clickable prototype from our call on October 16. It's the guest side of the app, laid out like Airbnb but made for quiet. Every space, host and review here is sample content set in Lexington.</p>
+        <div class="row" style=${{ marginTop: '18px' }}><${Logo} size=${34} /><span class="eyebrow">Version 2 for Cassie</span></div>
+        <h2>Hi Cassie, here's version 2.</h2>
+        <p>Thank you for the filter list! Every filter you sent is now in the app, along with the settings hosts control and four natural color schemes based on your palette. Every space, host and review is still sample content set in Lexington.</p>
         <ul class="try">${TRY.map(([i, t]) => html`<li key=${i}><${Icon} n=${i} cls="sm" /><span>${t}</span></li>`)}</ul>
         <p style=${{ marginTop: '16px' }}><b style=${{ color: 'var(--ink)' }}>Pick a color direction</b> (you can change it later in Profile):</p>
         <${PalettePicker} palette=${palette} setPalette=${setPalette} />
@@ -1193,9 +1314,9 @@ function Welcome({ onClose, palette, setPalette }) {
 function Notes({ palette, setPalette }) {
   return html`<aside class="notes">
     <div class="brandline"><span class="wordmark"><${Logo} size=${30} />quiet space</span></div>
-    <p class="eyebrow">Prototype v1 · Oct 20, 2026</p>
+    <p class="eyebrow">Prototype v2 · Oct 23, 2026</p>
     <h2 style=${{ marginTop: '10px' }}>Find a quiet place to rest, pray, cry or just be.</h2>
-    <p>The guest side of Quiet Space for Lexington, built from our October 16 call: Airbnb-style search with quiet-specific filters, a map, hourly booking with in-app payment, messaging, and reviews on both sides.</p>
+    <p>Version 2 adds every filter from your list, the settings hosts control on their listings, and four natural color schemes based on the palette you sent. Search, map, hourly booking, payment, messaging and two-way reviews all still work.</p>
     <p class="eyebrow np">Things to try</p>
     <ol>${TRY.map(([, t], i) => html`<li key=${i}>${t}</li>`)}</ol>
     <p class="eyebrow np">Brand direction</p>
@@ -1222,13 +1343,13 @@ function App() {
   const [saved, setSaved] = useState([1, 5]);
   const [bookings, setBookings] = useState(INIT_BOOKINGS);
   const [threads, setThreads] = useState(INIT_THREADS);
-  const [palette, setPaletteRaw] = useState(() => store.get('qs-palette') || 'sage');
-  const [welcome, setWelcome] = useState(() => !store.get('qs-welcomed'));
+  const [palette, setPaletteRaw] = useState(() => { const p = store.get('qs-palette'); return PALETTES.some(x => x.id === p) ? p : 'sage'; });
+  const [welcome, setWelcome] = useState(() => !store.get('qs-welcomed-v2'));
   const [toastMsg, setToastMsg] = useState(null);
 
   useEffect(() => { if (!toastMsg) return; const t = setTimeout(() => setToastMsg(null), 2600); return () => clearTimeout(t); }, [toastMsg]);
   const setPalette = (p) => { setPaletteRaw(p); store.set('qs-palette', p); };
-  const closeWelcome = () => { setWelcome(false); store.set('qs-welcomed', '1'); };
+  const closeWelcome = () => { setWelcome(false); store.set('qs-welcomed-v2', '1'); };
   const toast = (m) => setToastMsg(m);
   const push = (s) => setStack(st => [...st, s]);
   const pop = () => setStack(st => st.slice(0, -1));
